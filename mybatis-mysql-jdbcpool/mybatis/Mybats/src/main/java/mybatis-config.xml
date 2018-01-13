@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-config.dtd">
+			
+			<configuration>
+			
+			<!-- properties设置的值在整个配置文件中都可以用表达式来直接获取值 --> <!-- 用占位符来获取值：${username} -->
+			<!-- resource="db.properties"加载指定文件来读取属性，文件必须是键值对类型的 -->
+			<properties resource="db.properties">
+				<!-- 注意:是applications.properties文件中的值优先级高  所以下面自己指定的四个参数可以去掉了，会直接从db.properties中读取 -->
+				<property name="driver" value="com.mysql.jdbc.Driver" /> 
+				<property name="url" value="jdbc:mysql://localhost/briup" /> 
+				<property name="username" value="root" />
+				<property name="password" value=",.,.,,.." />		
+			</properties>
+			
+			<!-- settings放在property后面 -->
+			
+			<settings>
+				<!-- 开启二级缓存，可以让不同的sqlsession对象可以查询的数据进行共享（sqlsession默认开启一级缓存，查询完一个语句就会缓存下来留着以后用），并且第三方的缓存数据库（如redis）一般作用在这里 -->
+				<!-- 前提是在使用的映射文件中声明 <cache></cache> -->
+		  		<setting name="cacheEnabled" value="true" /> 
+		  	</settings>
+			
+			<!-- 配置xml书写提示 配置dtd -->
+				<typeAliases>
+					<!-- 给包名+类名起别名 -->
+					<!-- <typeAlias type="com.briup.bean.Student" alias="stu" /> 有冲突，先注释掉-->
+					<!-- 指定实体包 给该包下的所有类取别名 这样用该包下的所有类就不用区分大小写了，要用stu则在student类中加入注解 -->
+					<package name="com.briup.bean"/>
+				</typeAliases>
+				
+				<!-- 指定自定义的类型转换器  要写在typeAliases的下面 mybatis配置文件中是有标签顺序的-->
+				<typeHandlers>
+					<typeHandler handler="com.briup.dao.PhoneTypeHandler"/>
+				</typeHandlers>
+				
+				<environments default="development">
+					<environment id="development">
+						<transactionManager type="JDBC"></transactionManager><!-- 采用jdbc的事务的管理方式 -->
+						<dataSource type="POOLED"><!-- 采用数据连接池管理对象-->
+							<property name="driver" value="com.mysql.jdbc.Driver" /> 
+							<property name="url" value="jdbc:mysql://localhost/briup" /> 
+							<property name="username" value="${username}" /><!-- 用占位符来获取值 -->
+							<property name="password" value="${password}" />
+						</dataSource>
+					</environment>
+					
+					<environment id="test">
+						<transactionManager type="JDBC"></transactionManager><!-- 采用jdbc的事务的管理方式 -->
+						<dataSource type="POOLED"><!-- 采用数据连接池管理对象-->
+							<property name="driver" value="com.mysql.jdbc.Driver" /> 
+							<property name="url" value="jdbc:mysql://139.199.9.72/briup" /> 
+							<property name="username" value="root" />
+							<property name="password" value="root" />
+						</dataSource>
+					</environment>
+					
+				</environments>
+				
+				<mappers>
+					<!-- 
+					<mapper resource="com/briup/dao/StudentMapper.xml"/>路径从com开始，而不是/项目名开始,也不是src
+					<mapper resource="com/briup/dao/TeacherMapper.xml"/>
+					 -->
+					<!-- 
+						也可以直接指定接口,这时可以没有映射文件，但是要在接口中写注解
+						@select(value="sql")
+						@insert(value="sql")
+					 -->
+					<!-- <mapper class="com.briup.dao.StudentMapper"/>  -->
+					
+					<mapper resource="com/briup/onetoone/OneToOneMapper.xml"/>
+					<mapper resource="com/briup/onetomany/OneToManyMapper.xml"/>
+					<mapper resource="com/briup/manytomany/ManyToManyMapper.xml"/>
+					<mapper resource="com/briup/dynamicsql/DynamicSQLMapper.xml"/>
+					
+					<!-- 扫描整个包下的映射文件，这样不用每次新建一个映射文件写一次 -->
+					<!-- 扫描就不能再指定该包下的映射关系了 -->
+					<package name="com.briup.dao"/>
+				</mappers>
+				
+			</configuration>

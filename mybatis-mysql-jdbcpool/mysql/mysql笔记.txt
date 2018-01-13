@@ -1,0 +1,2869 @@
+	briup
+	mysql
+	linux 安转mysql数据库
+	1，更新系统
+	sudo apt-get update
+	2,安转
+	sudo apt-get install mysql-server-xxx
+
+	胡忠良
+	huzl@briup.com
+	15062465004
+	j2EE +大数据
+
+	
+
+	SQL	结构化查询语句 特点：只关注结果不关注过程
+	PL/SQL面向过程的结构化查询语句，特点：即关注过程也关注结果
+	MYSQL 关系型数据库（支持SQL和PL/SQL语句）
+	
+	mysql数据库的四个对象
+	table 表:存储数据，由二维表组成
+	view视图：简化操作，多个table表的映射，常用于隐藏信息
+	index索引：提高数据的检索效率，索引通常用于数据不会随时修改的数据，通常数据查询
+	用到2%～%5左右，
+	program unit 编出单元：基于执行流程，函数，sql包，及PL／SQL编程
+
+	SQL语句分类
+	数据检索语言：select
+	数据操作语言(DML):insert, delete, update
+	数据定义语言(DDL):create, alter, drop, rename, truncate
+	事务控制语言:commit,savepoint,rollback 
+	数据控制语言:grant, revoke
+
+	设置数据库的字符编码
+	目的：保证插入数据是中文
+	操作:客户端，mysql数据库服务器端，数据库的编码统一
+	1,查看单前系统的编码	
+	show variables like ‘char_%’
+	2.修改配置文件（注意:不同版本的mysql数据库配置文件不一样）
+	默认mysql数据库加载的时候读取的配置文件如：
+	mkdir 创建目录
+	拷贝文件
+	sudo cp 原始文件 目标文件
+	移动文件
+	sudo mv 原始文件 目标文件
+	/etc/my.cnf(一般情况下找不到配置文件可以复制一个文件到etc下)
+	/etc/mysql/my.cnf
+	/usr/local/mysql/etc/my.cnf
+	/etc/mysql/mysql.conf.d/mysqld.cnf
+	在文件中设置:
+	设置客户端的编码
+	[client]
+	default-character-set=utf8
+	设置服务器的编码
+	[mysqld]
+	character-set-server=utf8
+	设置编码的排序方式
+	collation-server=utf8_general_ci
+	
+	2，设置variables变量修改编码：
+	 mysql> set character_set_client=utf8;
+         mysql> set character_set_connection=utf8;
+         mysql> set character_set_database=utf8;
+         mysql> set character_set_results=utf8;
+         mysql> set character_set_server=utf8;
+         mysql> set character_set_system=utf8;
+         mysql> set collation_connection=utf8_general_ci;
+         mysql> set collation_database=utf8_general_ci;
+         mysql> set collation_server=utf8_general_ci;
+	注意设置好编码之后重新启动
+	linux下启动和关闭mysql
+	关闭mysql:   service mysql stop
+	启动mysql:   service mysql start
+
+	mysql 关系型数据库
+	展示数据库那些
+	show databases;
+	切换数据库
+	use database;
+	展示数据库中的表
+	show tables;
+	产看表中的详细信息
+	show full columns from 表名\G; 
+	创建database
+	create database 数据库名字
+	删除database 
+	drop database 数据库的名字
+
+	登录mysql数据库
+	mysql -u名字 	-p密码 -H地址IP -P端口
+
+	show的命令了解
+	查看用户下数据库有哪些
+	show databases；
+	查询以my开头的数据库
+	show databases like ‘my%’;
+	查询数据库下的所有表
+	show tables;
+	查询具体的数据中的所有表
+	show tables from database_name
+	查询匹配数据库中的所有表
+	show tables from database_name like ‘my%’;
+	查询表中所有的列的信息 等价与desc table_name
+	show columns from table_name;
+	查询某个数据库下的某个表的详细信息
+	show columns from table_name from database_name
+	show columns from table_name from database_name like ‘my%’;
+	查询详细的信息
+	show full columns from table_name;
+	查询表中的索引
+	show index from table_name;
+	查看数据库中的表的索引
+	show index from table_name from database_name;
+	查看单前数据的状态
+	show status;
+		具体的状态参考ppt中的解释
+	查看数据库中的所有变量
+	show processlist;
+	　先简单说一下各列的含义和用途，第一列，id，不用说了吧，一个标识，
+	你要kill一个语句的时候很有用。user列，显示单前用户，如果不是root，
+	这个命令就只显示你权限范围内的sql语句。host列，显示这个语句是从哪个ip的哪个端口上发出的。
+	呵呵，可以用来追踪出问题语句的用户。db列，显示这个进程目前连接的是哪个数据库。command列，
+	显示当前连接的执行的命令，一般就是休眠（sleep），查询（query），连接（connect）
+	。time列，此这个状态持续的时间，单位是秒。state列，显示使用当前连接的sql语句的状态，
+	很重要的列，后续会有所有的状态的描述，请注意，state只是语句执行中的某一个状态，
+	一个sql语句，已查询为例，可能需要经过copying to tmp table
+	，Sorting result，Sending data等状态才可以完成，info列，显示这个sql语句，
+	因为长度有限，所以长的sql语句就显示不全，但是一个判断问题语句的重要依据。
+	show variables；
+	注意;变量都可以进行修改
+	修改方式语法: mysql> set 变量名=变量值
+
+
+	创建用户
+	create user 用户名 identified by 密码
+	
+	create user ‘huzl’ identified by ‘huzl’;
+	create user huzl@172.168.0.111 by ‘huzl’;
+	注意：用户名不写@表明所有的ip都可以远程访问该用户
+	用户加@不加单引号，加单引号变成字符串。
+	set password for test@172.17.0.111=password(‘11111’)
+
+
+	删除用户
+	drop user 用户名 
+	注意:用户名中有特殊符号加单引号
+
+	赋权操作
+	语法：
+	grant 权限 on database_name.table_name to 用户名
+	注意；权限可以是多个，权限之间逗号隔开
+	如果希望权限传递 with grant option;
+	回收权限
+	revoke 权限的名字 on database_name.table_name from 用户名
+
+	设置用户（看数据库user表中有没有password）
+
+	insert into user(user,host) value(‘huzk’,’127.0.0.1’);
+	回收所有的权限
+	revoke all on *.* from 用户名
+	e.g.:
+	revoke all on *.* from test@172.17.0.111;
+	赋于当前用户的所有权限给新的用户
+	grant all privileges on *.* to test@172.17.0.111;
+	
+	注意:第一个*表示database 	第二个*表示数据库中的所有的表
+	让赋权操作立刻生效
+	flush privileges;
+	
+	展示mysql数据库的引擎
+	Show Engines;
+	(重要的引擎innoDB)
+
+	事务的ACID原则
+	原子性：事务中的操作或逻辑不可分，要么全部成功要么全部失败
+	隔离性：两个事务可能同时操作相同的数据，其它事务在查寻该数据的时候
+	只能查到前两个事务执行之前或之后的状态，不可能查到中间状态
+	持久性：数据持久的保存到数据库中（磁盘中），不受系统奔溃等的影响
+	一致性：事务操作数据的时候保证数据的完整性；
+	e.g.：银行账号取钱过程假设出错，最终保证数据的完整性
+
+	注意：原子性，持久性，一致性，事务操作数据的时候由日志
+	维护，如果事务中有不成功的，事务恢复到事务执行之前的状态
+	基于mysql日志恢复
+	隔离性是基于锁机制进行维护的，一个事务操作的时候必须获取到锁
+
+
+	select简单操作
+	select 算术运算或逻辑运算
+	e.g. :select 1+1
+	查询单前时间
+	select now() as systime;//2017-12-05 14:42:08
+	
+	select current_date as systime;//2017-12-05
+	
+	select sysdate() as systime;//2017-12-05 14:43:46
+
+	MySql数据类型 
+
+	建表语句的语法
+	create table [database_name.]表名(
+	列的名字 列的类型 列的约束，
+	列的名字 列的类型 列的约束
+	);
+	注意：列与列之间逗号隔开，最后一个列的声明后面不需要逗号
+	下面的语法同上，忽略。
+	create table `[database_name.]表名`(
+	`列的名字` 列的类型 列的约束，
+	`列的名字` 列的类型 列的约束
+	);
+		
+	整型（没有小数点的数字）：
+	
+	unsigned 无符号标记，5.7版本的mysql不能插入负数
+	但低版本中可以插入负数变成0
+	zerofill 位数不够用0补齐
+	create table s3(
+   	 id int(4) unsigned zerofill
+    	);
+	insert into s3 values(1);
+	//0001 
+	浮点型（含有小数点的数字）	
+	M表示有效数子是多少， D表示小数后几位。但没有限制
+	注意：对M-D得到的数是小数点前面的位置（有限制）
+	FLOAT[(M,D)] [ZEROFILL]
+	正负：-3.402823466E+38 -1.175494351E-38
+	
+	0  1.175494351E-38 3.402823466E+38
+
+	create table s4(
+	id float(5,2)
+	);
+	insert into s4 values(111);//ok
+	insert into s4 values(1111111);//报错
+	原因：小数点前只能出现3位
+	insert into s4 values(111.1111111);//ok
+	insert into s4 values(111.1);//ok
+	
+	create table s5(
+	id float(5,2) zerofill
+	);
+
+	DOUBLE PRECISION[(M,D)] [ZEROFILL]
+	等价于double
+	create table s6(
+	id double PRECISION
+	);
+	insert into s6 values(11);
+	insert into s6 values(11.222);
+	insert into s6 values(111111.222);
+	insert into s6 values(-111111.222);
+	select * from s6;
+	//结果
+	          11 
+	      11.222 
+  	  111111.222 
+	 -111111.222 
+
+	create table s7(
+	id double PRECISION(5,2)
+	);
+
+	字符型：
+	char 字符类型，特点，位数不够用空格补充
+	后面程序测试
+	用法，一般只用于固定填值 eg：性别 :男|女
+	create table s8(
+	name char(20)
+	);
+	insert into s8 values(‘中’);
+	
+	varchar长的字符串类型，特点长度可变
+	长度大致2000，
+	create table s9(
+	name varchar(20)
+	);
+	insert into s8 values(‘中’);
+	TINYBLOB 二进制 255字节
+	TINYTEXT 字符串 255字符
+	blob 二进制数据。65K
+	存储字符串的时候，mysql数据库会自动把字符串转化为
+	二进制，取值会自动把二进制转化为字符串
+	create table s9(
+	name blob
+	);
+	insert into s9 values('中');
+
+	text 类型 65535个字符
+	
+	MEDIUMBLOB 存储16M
+	
+	MEDIUMTEXT 存储16777215(2^24-1)个字符
+	
+	LONGBLOB 存储4G的数据
+
+	LONGTEXT 存储4294967295(2^32-1)   
+
+	枚举类型
+	enum 可以指定范围 65535个值
+	set 可以指定64个值		
+	两者表示的是填写的值只能是范围指定的值
+	注意：插上数据值和枚举中的值没有匹配的，报错或不写入值
+	create table s10(
+	gender enum(‘f’,’m’)
+	);
+	日期类型
+	date类型，
+	注意：日期需要加单引号
+	插入的时候格式：yyyy-MM-DD
+
+	create table da1(
+	birth date
+	);
+	insert into da1 values('2017-11-11');
+	
+	datatime 类型（yyyy—mm-dd HH:MM:SS）
+	create table da2(
+	birth datetime
+	);
+	insert into da2 values('2017-11-11 11:11:11’);
+	insert into da2 values('2017-11-11');
+	//查询结果
+	2017-11-11 11:11:11
+	2017-11-11 00:00:00 
+	
+	timestamp(M)类型	
+	M表示插入的模式
+	14	YYYYMMDDHHMMSS
+	12	YYMMDDHHMMSS
+	8	YYYYMMDD
+	6	YYMMDD
+	
+	create table da3(
+	birth timestamp(6)
+	);
+	insert into da3 values('20171111111111');	
+	注意，timestamp会记录到毫秒
+	timestamp值随着插入的值自动选择模式匹配
+
+	time只表示时间 （HH:MM:SS）
+	注意小时的验证
+	create table da4(
+	birth time
+	);
+	insert into da4 values('34:11:11');
+	insert into da4 values('11:11:11');
+	
+	year类型:
+	year(4)|year
+	
+	create table da5(
+	birth year
+	);
+	insert into da5 values(17);
+	insert into da5 values(2017);
+	
+	create table da6(
+	birth year(4)
+	);
+
+	DDL数据定义语言
+	create alter drop truncate rename
+
+	建表语句
+	
+	列级约束建表（约束加在每一个列申明的后面）
+	create table tabel_name
+	(
+	  列名 数据类型 约束，
+	   列名 数据类型 约束，
+	  列名 数据类型 约束	
+	);
+	表级约束建表（约束加在所有列声明之后）
+	create table tabel_name
+	(
+	  列名 数据类型，
+	   列名 数据类型，
+	  列名 数据类型，
+	  约束，
+	  约束,
+	  约束
+	);
+	
+	临时表的建立（内存|磁盘），
+	周期：断开链接的时候，会话结束的时候
+	，数据库会自动清空临时表及其数据
+	create TEMPORARY table test(
+	id int(4),
+	name varchar(20)
+	);
+	等价
+	create TEMPORARY table test(
+	id int(4),
+	name varchar(20)
+	)engine=InnoDB default charset=utf8;
+	
+	注意： engine指定当前表使用的引擎
+	default charset指定表中的编码
+	，编码如果系统配置过，可省略
+
+	临时表存储到内存中
+	create TEMPORARY table test1(
+	id int(4),
+	name varchar(20)
+	)engine=memory default charset=utf8;
+	
+	建立临时表的时候数据直接从已经存在的
+	一个表或多表中导出，
+	create  table stu(
+	id int,
+	name varchar(22)
+	);
+	insert into stu values(1,'lisi');
+	insert into stu values(2,’wangwu’);
+	
+	create temporary table test2
+	select * from stu;
+	注意：*表示吧stu表中满足条件
+	的数据及表的字段都copy到临时表中
+	等价
+	create temporary table test3
+	as
+	select * from stu;
+
+	需要数据库表中的某一列
+	(拷贝具体的某列数据，直接写列)
+	create temporary table test4
+	as
+	select id from stu;
+	
+	需要临时表列名和查询表的列名不一致
+	数据一致
+	create temporary table test5
+	as
+	select id userid from stu;
+	等价
+	create temporary table test5
+	as
+	select id as userid from stu;
+
+	临时表的列名字中间有空格
+	（单引号）
+	create temporary table test6
+        as select id 'my id'  from stu;
+
+	临时表中列明中需要出现单引号
+	create temporary table test1
+        as select id 'my''s id'  from stu;
+	注意：单引号也可以作为转义符号使用
+
+	约束	
+	not null 
+	非空约束
+	unique
+	唯一约束
+	primary key
+	主键 非空且唯一
+	foreign key
+	外键 维护关系的时候用的
+	是其它表的主键或唯一约束
+	必须是无符号的（正数 unsigned）
+	
+	check(失效)
+	注意：primary key 和foreign key的
+	使用表必须是innoDB
+
+	auto_increment自动增长
+	当前列是数字，同时是key修饰的
+	key(索引) primary key foreign key	
+
+	create table tet(
+	id int auto_increment,
+	name varchar(20)
+	);//建立不了，需要key修饰id
+
+	create table tet(
+	id int auto_increment key,
+	name varchar(20)
+	);
+	create table tes(
+	id int auto_increment key,
+	name varchar(20)
+	);
+	修改当前会话的自增步长
+	set session auto_increment_increment=2
+	修改全局的会话步长
+	set global auto_increment_increment=2
+	删除表
+	drop table 表名[表名,表名…]
+	列级约束
+	create table stu(
+	id int auto_increment primary key,
+	name varchar(22) not null,
+	age int unique
+	);
+	表级约束
+	create table stu1(
+	id int auto_increment,
+	name varchar(22),
+	age int,
+	primary key(id),
+	unique(age)
+	);
+	
+	注意：not null只能用于列级约束
+	联合主键
+	单独一列满足不了唯一标记，可能采用多列
+	作为唯一标记，只能用表级约束限定
+	create table stu2(
+	id int auto_increment,
+	name varchar(22),
+	primary key(id,name)
+	);
+	联合唯一(unique 表级约束)
+	create table stu3(
+	id int,
+	name varchar(22),
+	unique(id,name)
+	);
+
+	外键foreign key
+	1,外键约束数据的一致性
+	2.外键必须匹配主键或唯一或key修饰
+	3.外键可以为空
+	4.只能有引擎为innoDB是才支持外键约束
+	create table hus(
+	id int auto_increment primary key,
+	name varchar(20)
+	);
+	create table wife(
+	id int auto_increment primary key,
+	name varchar(22),
+	hus_id int references hus(id)
+	);
+	注意：外键建立在列级约束无效
+	测试1
+	create table hus(
+	id int  primary key,
+	name varchar(20)
+	);
+	
+	create table wife(
+	id int  primary key,
+	name varchar(22),
+	hus_id int,
+	foreign key(hus_id) references hus(id)
+	);
+	测试2
+	create table hus(
+	id int auto_increment  primary key,
+	name varchar(20)
+	);
+	
+	create table wife(
+	id int auto_increment  primary key,
+	name varchar(22),
+	hus_id int,
+	foreign key(hus_id) references hus(id)
+	);
+	测试3
+	create table hus(
+	id int  unsigned key,
+	name varchar(20)
+	);
+	
+	create table wife(
+	id int auto_increment  primary key,
+	name varchar(22),
+	hus_id int unsigned,
+	foreign key(hus_id) references hus(id)
+	);
+	
+	注意；外键引入的另一张表的键（没有用唯一
+	或primary key修饰），用key修饰的时候
+	两张表类型一致，还有必须是unsigned标记为无符号
+	
+	级联操作
+	on delete cascade
+	测试:
+	create table hus(
+	id int  primary key,
+	name varchar(20)
+	);
+	create table wife(
+	id int primary key,
+	name varchar(20),
+	hus_id int,
+	foreign key(hus_id) 
+	references hus(id) on delete cascade
+	);
+	insert into hus values(1,'rose');
+	insert into wife values(1,'jake',1);
+	删除hus中的数据的时候会级联的删除
+	引用了hus表主键的其它表中的数据
+	默认情况下是不能直接删除hus中的数据
+	原因，主键被其它表引用
+	delete from hus;
+
+	on delete set null
+
+	create table hus(
+	id int  primary key,
+	name varchar(20)
+	);
+	create table wife(
+	id int primary key,
+	name varchar(20),
+	hus_id int,
+	foreign key(hus_id) 
+	references hus(id) on delete set null
+	);
+	insert into hus values(1,'rose');
+	insert into wife values(1,'jake',1);
+	删除hus表中的数据，会吧wife表中数据
+	外键直接置null
+	delete from hus;
+	
+
+	on update cascade
+
+	create table hus(
+	id int  primary key,
+	name varchar(20)
+	);
+	create table wife(
+	id int primary key,
+	name varchar(20),
+	hus_id int,
+	foreign key(hus_id) 
+	references hus(id) on update cascade
+	)engine=InnoDB default charset=utf8;
+	insert into hus values(1,'rose');
+	insert into wife values(1,'jake',1);
+	修改hus表中的主键，会级联的修改wife表中的
+	外键
+	update hus set id=2 where id=1;
+	
+	修改默认引擎的操作
+	1，修改mysql启动的配置文件（改编码的文件）
+	[mysqld]
+	default-storage-engine=InnoDB
+	2,建表的时候追加engine
+	e.g.:
+	create table stu(
+	id int primary key,
+	name varchar(22)
+	)engine=InnoDB
+	3,通过alter语句修改引擎
+	alter table 表名 engine=InnoDB	
+
+	基于引擎建表
+	create table test(
+	id int auto_increment primary key,
+	name varchar(22) not null,
+	gender enum(‘f’,’m’)	
+	)engine=InnoDB default charset=utf8
+
+	注意：建表的时候表名和列的名字可以加tab键上面按键的点（`）
+	birth `date`
+
+	//联合外键(只能用表级约束)：
+	第一种情况
+	create table hus(
+	id int,
+	name varchar(22),
+	age int,
+	primary key(id,name)
+	)
+	create table wife(
+	  id int auto_increment primary key,
+	  name varchar(22),
+	  hus_id int,
+	  hus_name varchar(22),
+	  foreign key(hus_id,hus_name) references hus(id,name)
+	)
+	第二种情况
+	create table hus(
+	id int,
+	name varchar(22),
+	age int,
+	unique(id,name)
+	)
+	create table wife(
+	  id int auto_increment primary key,
+	  name varchar(22),
+	  hus_id int,
+	  hus_name varchar(22),
+	  foreign key(hus_id,hus_name) references hus(id,name)
+	)
+	
+	把table_b的表结构完全复制到table_a中
+	但数据不复制
+	create table table_a like table_b;
+	等价于 
+	create table table_a
+	select * from table_b
+	where 1=2
+
+	三大范式：
+	第一范式：原子性（列不可分）
+	e.g. :建表中有字段 爱好（hoby）
+	      篮球足球羽毛球
+	      地址（addr）
+	      中国,江西,南昌
+	class User{
+		private int id;
+		private String name;
+		private String passwd;
+		private Address addr;
+		set/get
+	}
+	class Address{
+		private int id;
+		private String country,
+		private String province,
+		private String city,
+		get/set
+	}
+
+	建表语句
+	s_address
+	id	country		province	city
+	s_user
+	id	name	passwd 	addr_id
+
+	create table s_address(
+	id int primary key,
+	country varchar(22),
+	province varchar(22),
+	city varchar(22)
+	);
+	create table s_user(
+	id int primary key,
+	name varchar(22),
+	passwd varchar(22),
+	addr_id int,
+	foreign key(addr_id) references s_address(id)
+	);
+
+	第二范式：在满足第一范式的基础之上，非主属性必须依赖
+	主键
+	e.g.:
+	订单
+	订单id 产品 总价钱 生产地
+
+	生产地和订单编号没有关系的
+
+
+	华联超市
+	名称。 数量 单价 	总价
+	苹果。 5	   2。   10
+	辣条   10。 1。   10
+	 	
+		 总价 20 
+
+	order orderline  product
+	
+
+	s_product
+	id name price …
+	1   苹果	5
+	2。  辣条	1
+	s_orderline
+	id	pro_id number order_id
+	1	1	5	1
+	2	2	10	1
+	
+	s_order
+	order_id name sum_price 
+	1	订单1 	35	
+	注意：一对多的情况关系维护在多的一方
+
+	第三范式：在满足第二范式的基础之上，不能存在依赖传递
+	e.g.:
+
+	课程。
+	课程id 	课程名字 	学生id 学生的名字
+
+	学生名字间接依赖于课程id
+
+	表与表之间的关系
+
+	一对一
+	关系的维护随便在一方
+	hus 和wife
+	class hus{
+		private int id;
+		private String name;
+		private wife w;
+		get/set
+	}
+	class wife{
+		private int id;
+		private String name;
+		private hus h;
+		get/set
+	}
+	create table hus(
+	id int primary key,
+	name varchar(22)
+	);
+	hus
+	id 	name
+	
+	create table wife(
+	id int primary key,
+	name varchar(22),
+	hus_id int,
+	foreign key(hus_id) references hus(id)
+	)
+	wife
+	id	name 	hus_id
+	
+	一对多
+	表的维护在多的一方
+	飞机和乘客
+	class Customer{
+	private int id;
+	private String name;
+	private int age;
+	private Air air;
+	get/set
+	}
+
+	class Air{
+	private int id;
+	private String name;
+	Set<Customer> custs=new HashSet<>();
+	get/set…
+	}
+	
+	create table s_cus(
+	id int primary key,
+	name varchar(22),
+	age int,
+	air_id int,
+	foreign key(air_id) references air(id)
+	)
+	s_cus
+	id 	name	age	air_id
+
+	create table air(
+	id int primary key,
+	name varchar(22)	
+	);
+	air
+	id	name
+	
+	
+	多对多
+	关系的维护借助于第三张表桥表
+	学生选课
+	class stu{
+	private int id;
+	private String name;
+	Set<course> courses=new HashSet<>();
+	}
+	class course{
+	private int id;
+	private String name
+	Set<stu> stus=new HashSet<>();
+	}
+	create table stu(
+	id int primary key,
+	name varchar(22)
+	);	
+	create table course(
+	id int primary key,
+	name varchar(22)
+	);
+
+	create table stu_course(
+	stu_id int,
+	course_id int,
+	foreign key(stu_id) references stu(id),
+	foreign key(course_id) references course(id),
+	primary key(stu_id,course_id)
+	)
+
+	auto_increment用法
+
+	create table inc(
+	id int auto_increment key,
+	name varchar(20)
+	);
+	直接修改表的初始值
+	alter table inc auto_increment=2
+
+	索引：
+	目的：提高检索效率
+	注意：可以添加索引，索引的管理由数据库管理
+	分路检索，全局检索，hash检索，空间数据检索
+	BTREE, FULLTEXT, HASH, RTREE
+	key 和index区别
+	用法一样
+	key既可以标记索取也同时可以标记键的类型
+	index 只能标记索引
+	建索引
+	create table ind(
+	id int primary key,
+	name varchar(22),
+	key(name)
+	);
+	create table ind(
+	id int primary key,
+	name varchar(22),
+	key index_name(name)
+	);
+
+	create table ind(
+	id int primary key,
+	name varchar(22),
+	index index_name(name)
+	);
+	create table ind(
+	id int primary key,
+	name varchar(22),
+	index (name)
+	);
+	注意：主键非空且唯一自带索引
+	查看索引
+	show index from ind;
+	
+	· Table
+	表的名称。
+	· Non_unique
+	如果索引不能包括重复词，则为0。如果可以，则为1。
+	· Key_name
+	索引的名称。
+	· Seq_in_index
+	索引中的列序列号，从1开始。
+	· Column_name
+	列名称。
+	· Collation
+	列以什么方式存储在索引中。在MySQL中，有值‘A’（升序）或NULL（无分类）。
+	· Cardinality
+	索引中唯一值的数目的估计值。通过运行ANALYZE TABLE或myisamchk -a可以更新。基数根据被存储为整数的统	计数据来计数，所以即使对于小型表，该值也没有必要是精确的。基数越大，当进行联合时，MySQL使用该索引的机会	就越大。
+	· Sub_part
+	如果列只是被部分地编入索引，则为被编入索引的字符的数目。如果整列被编入索引，则为NULL。
+	· Packed
+	指示关键字如何被压缩。如果没有被压缩，则为NULL。
+	· Null
+	如果列含有NULL，则含有YES。如果没有，则该列含有NO。
+	· Index_type
+	用过的索引方法（BTREE, FULLTEXT, HASH, RTREE）。
+	· Comment
+	多种评注。
+
+	删除索引
+	drop index index_name on table_name
+	
+	drop index index_name on ind;
+
+	给约束起名字 constraint
+	
+	create table tea(
+	 id int primary key,
+	 name varchar(22)
+	)
+	create table stu(
+	id int auto_increment,
+	name varchar(22),
+	tea_id int,
+	constraint stu_id_pk primary key(id),
+	constraint stu_id_un unique(name),
+	constraint stu_id_fk foreign key(tea_id) references tea(id)
+	);
+	
+	alter table对表的修改
+	create table test(
+	name varchar(22)
+	);
+	
+	添加列
+	语法
+	alter table table_name add
+	 [column] 新列的名字 列的类型 列的约束 [first]|[after old_name]
+
+	
+	alter table test add column age int not null
+	添加列到第一列
+	alter table test add id int primary key first
+	添加列在表中某列的后面
+	alter table test add column gender varchar(22) after name
+	
+	添加表级约束
+	alter table test add unique(name);
+	alter table test add constraint test_g_un unique(name);
+	alter table test add unique index_name(name);
+	注意：表级约束（foreign key primary key）	
+	索引 key index
+
+	添加主键
+
+	alter table test add primary key(id);
+	alter table test add constraint test_pk_name primary key(id);
+	
+	create table tes(
+	id int primary key,
+	name varchar(22)
+	);
+	添加外键
+	alter table test add tes_id int
+	alter table test add foreign key(tes_id) references tes(id)
+	alter table test add constraint test_tes_id_fk foreign key(tes_id) references tes(id)
+	建立索引
+	alter table test add index(name)
+	alter table test add index index_name(name)
+	alter table test add key(name)
+	alter table test add key index_name(name)
+	create table stu(
+	id int,
+	name varchar(22)
+	)
+	alter table stu add key(id,name)
+	alter table stu add index(id,name)
+	删除列
+	alter table table_name drop [cloumn] col_name
+
+	alter table test drop id;
+		
+	删除索引
+	alter table stu drop index index_name
+	
+	alter table stu drop index id
+
+	删除主键
+	alter table test drop primary key 
+
+	给某列设置默认值
+	create table stu(
+	id int primary key,
+	name varchar(22),
+	age int default 30
+	);
+	注意:默认值如果是日期和字符串加单引号
+
+	create table stu(
+	id int primary key,
+	name varchar(22),
+	age int 
+	);
+	增加默认值
+	alter table stu alter  age set default 33
+	alter table stu alter column age set default 33
+
+	删除默认值
+	alter table stu alter age drop default
+
+	修改列名及列的类型
+	语法：
+	alter table table_name change 
+		[column] 旧列名 新的列名 列的约束
+	
+	alter table stu change column age addr text not null
+	
+	直接修改列的类型及约束（旧列名和新列名一致）
+	等价于modify
+	alter table stu change column addr addr int
+
+	modify修改列的类型及约束
+	
+	alter table stu modify addr varchar(22) unique;
+	
+	表的重命名
+	rename table stu to person
+	等价
+	alter table person rename as stu;
+
+	IGNORE增加新的列的约束限定之后，数据不满足条件
+	数据删除只留一行数据，忽略错误
+	注意：所有alter语句都可以加ignore
+
+	create table tea(
+	id int,
+	name varchar(20)
+	);
+	insert into tea values(1,’lisi’);
+	insert into tea values(1,’wangwu’);
+	insert into tea values(2,’a’);
+	insert into tea values(2,’b’);
+
+	alter table tea add primary key(id);
+
+	alter ignore table tea add primary key(id);
+	id | name   |
+	|  1 | wangwu |
+	|  2 | a
+
+	table_options支持上面修改表的所有语句的组合
+
+	alter table tea add column age int,
+			change name names varchar(22),
+			add primary key(id),
+			rename as teacher
+
+
+	DML数据操作语言
+	insert
+	create table tea(
+	id int,
+	name text,
+	gender text
+	);
+	
+	插入完整的数据
+	insert 	into tea values(1,’lisi’,’test’)
+	注意：values中的数据和表中列的位置对应
+	insert 	into tea(id,name,age) 
+		values(1,’lisi’,’test’)
+	
+	插入部分数据
+	insert into tea(id) values(1);
+
+	同时插入多行数据
+	insert into tea values(1,’lisi’,’test’),(2,’wangw’,’hello’)
+	插入单行数据
+	insert into tea set id=3,name=‘briup’	
+
+	把从表中(单或多表)查询的数据插入到表里
+	insert into tea 
+	select id,name,addr gender
+	from stu
+
+	DELAYED 延迟插入数据，等到其它事务不在读取该表的数据的时候插入
+	insert DELAYED into tea values(7,’lisi’,’wangwu’) 
+	
+	注意：DELAYED不支持引擎为innoDB
+	支持ARCHIVE,MyISAM,memory
+	
+	LOW_PRIORITY降低写操作优先级，效果同上
+	insert LOW_PRIORITY into tea values(7,’lisi’,’wangwu’) 
+	high_PRIORITY 提高优先级
+	insert high_PRIORITY into tea values(8,’lisi’,’wangwu’) 
+	
+	
+	delete
+	语法
+	delete [LOW_PRIORITY]
+	from table_name
+	[where ….]
+	[order by column_name ASC|DESC]
+	[limit 数字]
+	
+	create table test(
+	id int auto_increment key,
+	name varchar(22),
+	salary int
+	);
+
+	清空整个表，
+	delete from test;
+
+	delete from test where name=‘lisi’ limit 3
+	注意:limit 找到满足条件的删除前面
+
+	delete from test where name=‘lisi’ order by name
+	limit 3 
+
+	order by 排序 ASC 或者desc
+	默认不写，升序ASC	
+
+	注意:没有where语句的时候mysql数据库直接建立一个空的新表
+	
+	delete LOW_PRIORITY from test where name=‘lisi’ order by salary
+	limit 1 
+	注意：LOW_PRIORITY降低修改权限的，延迟删除，在读之后
+	
+	update
+	语法
+	update [LOW_PRIORITY][ignore] table_name
+	set col=val,col=val….
+	[where …..]
+	[order by….]
+	[limit 数字]
+
+	update test set salary=1000,name=‘wangwu’;
+
+	update ignore test set id=8 where id=9
+	注意：ignore 知识忽略错误
+
+	update test set salary=10000 where name=‘lisi’
+	order by salary desc limit 1
+
+	update LOW_PRIORITY test set salary=10000 where name=‘lisi’
+	order by salary desc limit 1
+
+	截取表：回收资源，mysql创建一张新的空表
+	truncate table table_name
+	
+	truncate table test;
+	全局的都修改生效 
+	Optimize(优化数据库的)：回收闲置的资源
+	e.g.：delete 删除数据不删数据所占的资源
+
+	Optimize table test;
+
+	操作符和函数
+
+	|| 等价 or
+	两者有一个成立就显示出来
+	select * 
+	from test
+	where name=‘rose’ || salary=2222
+	等价
+	select * 
+	from test
+	where name=‘rose’ or salary=2222
+	
+	select 3>2||2<1
+
+	&& 等价 and
+	两者同时成立才会显示
+
+	select * 
+	from test
+	where name=‘rose’ and salary=2222
+
+	exists 可以用any 或者 in达到一样的效果
+	表示是否有数据返回,有数据返回true或1 没有数据是false 或0 
+	
+	create table A(
+	id int primary key,
+	name varchar(22)
+	)
+	create table B(
+	id int primary key,
+	name varchar(22),
+	aid int,
+	foreign key(aid) references A(id)
+	)
+
+	A
+	id	name
+	1	A
+	2	B
+	3 	C
+	B
+	id	name	aid
+	1	lisi	1
+	2	rose	2
+	3	wangwu	2
+
+	查询和B表关系A表中的数据是哪些
+	
+	select a.id,a.name
+	from A a
+	where exists(select * from B b where a.id=b.aid)
+	结果
+	1 A
+	2 B
+	第一次 1 A
+	select * from B b where b.aid=1
+
+	=Any
+	select *
+	from A
+	where id=Any(select aid from B)
+	
+	select * 
+	from A
+	where  id=1 or id=2 or id=2
+
+	in 也是在什么范围之内
+	select *
+	from A
+	where id in(select aid from B);
+
+	not exists 不在某个范围
+
+	select a.id,a.name
+	from A a
+	where not exists(select * from B b where a.id=b.aid)
+	结果:
+	3 C
+
+	not in 不在某个范围
+	select *
+	from A
+	where id not in(select aid from B);
+	结果:
+	3 C
+	
+	9
+	9/2 4 1
+	4/2 2 0
+	2/2 1 0
+	1/2 1 1
+	
+	1001 9
+	|
+	按位或
+	1|0 1
+	1|1 1
+	0|1 1
+	0|0 0
+
+	select 4|9
+	// 0100
+	   1001
+	 | 1101 13
+	
+	&
+	按位与
+	0|0 0
+	1|0 0
+	0|1 0
+	1|1 1
+
+	select 4&9
+	
+	0100	
+	1001
+      & 0000
+
+	^
+	按位异或
+	0^0 0
+	1^0 1
+	0^1 1
+	1^1 0
+	
+	select 4^9
+	
+	0100
+	1001
+      ^ 1101.  13
+	
+	~
+	select ~4
+	0100
+	1011
+	取反
+	<<
+	左移动
+	select 2<<2
+	0010
+	1000 8
+
+	>>
+	右移
+
+	select  2>>2
+	
+	0000
+
+
+	null值不是0，null不参与计算，
+	select * 
+	from test
+	where name is null;
+	非空 is not null
+
+
+	问题
+	select * 
+	from A
+	where id=(select aid
+		  from B
+		 where id=?
+	)
+	<=>和等号效果一致，null没有任何效果
+	不能用=进行操作
+
+	select ‘a’<=>’a’
+
+
+	between and 
+	在某一个范围
+	select * 
+	from test
+	where salary between  1000 and 2000
+
+	and salary not in(1000,2000)
+		
+	[1000,2000]
+	
+	表示在某一个范围，判断
+	在true 不在false
+	select 1 between 2 and 3	
+		
+	select 1 between 2 and ‘5’
+
+	case when then else end结合使用
+
+	select 	case 1 when 1 then ‘nihao’ when 2 then ‘tste’ end;
+	
+
+	
+	select case id when 1 then ‘one’ when 2 then ‘two’ else ‘three’ end
+ id,name,case when salary>2000 then ‘金领’ when salary<1000 then ‘蓝领’
+	from test;
+
+	case id when 1 then ‘one’ when 2 then ‘two’ else ‘three’ end
+
+	case when salary>2000 then ‘金领’ when salary<1000 then ‘蓝领’ end
+	
+	注意:case等操作只能操作查询结果
+	对数据库中的数据是没有影响的
+	获取年份
+	select curdate()
+	//2017-12-08 
+	获取时间
+	select curtime();
+	//14:45:05
+	获取完整的时间
+	select now();
+	//2017-12-08 14:45:38
+
+	函数 	
+	字符函数
+	将字符串转化为小写
+	select lower(‘HELLO’);
+	
+	Patel
+	PatEl
+
+	select *
+	from test
+	where lower(name)=lower(‘patEl’)
+
+	查询 patel PATEL
+	将字符串转化为大写
+	select upper(‘hello’);
+	
+	字符串拼接(参数可以是多个参数)
+	select concat(‘a’,’b’)//ab
+	
+	字符串截取
+	substr
+	//从某个位置开始截取，包含起始位置
+	select substr(‘hello world’,2);
+	//从第2个位置开始截取，截取3个长度
+	select substr(‘hello world’,2,3);
+	
+	字符串的长度
+	length	
+	select length(‘hello’)
+	
+	
+	数字函数
+	round对数字进行四舍五入
+	正数表示小数点后面保留几位
+	select round(23.5436);//24
+	select round(23.5436,1);//23.5
+	select round(23.5436,3);//23.544
+	select round(25.5436,-1)//30
+	select round(25.5436,-2)//0
+
+	truncate截取
+	select truncate(22.234,0);//22
+	select truncate(22.234,1);//22.2
+	select truncate(22.234,2);//22.23
+	select truncate(22.234,-1);//20
+	select truncate(22.234,-2);//0
+	注意：truncate必须是两个参数，
+	abs取绝对值
+	select abs(-2)//2
+	
+	mod 取余
+	
+	
+	
+	
+	
+	日期函数
+
+	curDate查询年月日
+	curtime 查询小时分钟秒
+	now查询的是年月日小时分钟秒
+
+	select curdate(),curtime(),now()
+	subdate 操作天数,第一个参数表示的总天
+	数减去第二个参数
+	select subdate(‘2017-12-11’,1)
+	select subdate(now(),5);
+
+	adddate 给单前时间+多少天（第二个参数）
+	select adddate(now(),1);
+
+	addtime 增加多少秒
+	select 	addtime(curtime(),20),curtime();
+
+	超过增加秒数100的时候进制分钟
+	select 	addtime(curtime(),100),curtime();
+	
+	区间在[60,99]	addtime操作的时间直接null值
+	select 	addtime(curtime(),80),curtime();
+
+	subtime减秒数，操作同上
+
+	datediff获取两个时间短相差多少天
+	select datediff(‘2017-11-20’,’2017-12-11’);
+
+	last_day求时间的所处的月份最后一天
+	
+	
+	select last_day(‘2017-12-11’)
+	
+	
+	
+	date_format将时间转化为特定的字符串
+	select date_format(now(),’%a %b’)
+	
+	select date_format(now(),'%a %b %D %Y %W %V');
+
+	str_to_date将字符串转化为时间
+	select str_to_date(’201750 12’,’%Y%V %m’);
+
+	其它函数(加密操作)
+	aes_encrypt 加密
+	第一个参数加密的内容，第二个参数解密钥匙
+	select aes_encrypt(‘hello’,’test’)
+	
+	aes_decrypt解密操作
+	第一个参数是加密的内容，第二个参数钥匙
+
+	select aes_decrypt(‘hello’,’test’)//null
+
+	select aes_decrypt(aes_encrypt(‘hello’,’test’),’test’)
+	
+
+	create table stu(
+	name blob
+	);
+	插入数据的时候加密
+	insert into stu values(aes_encrypt(‘hello’,’test’))
+	查询数据的时候解密
+	select aes_decrypt(name,'test')
+    	from stu;
+
+	encode加密
+	第一个参数表示需要加密的数据，
+	第二个参数将来需要解密的钥匙
+	
+	select encode(‘hello’,’test’);
+
+	decode解密
+	第一个参数是已经加密过的内容 第二个参数表示钥匙
+
+	select decode(encode('hello','test'),'test');
+
+	MD5加密（一般不可逆）
+	select MD5(‘hello’)
+
+	encrypt加密，linux或者unix系统自带的算法加密
+	select encrypt(‘test’);
+
+	password 加密 （mysql采用的）
+	select password(‘test’);
+
+	select查询操作 
+
+	把sql文件导入数据库
+	mysql -t <briup_create.sql -uroot -p密码
+
+	
+	
+	把数据库导出到sql文件中
+	mysqldump -utoot -p密码 数据库>xxx.sql
+	mysqldump -uroot -p mysql>test1.sql
+
+	把数据库中的某张或某几张表导出到文件中
+	mysqldump -uroot -p密码 数据库 表1 表2
+		…>本地的sql文件
+	mysqldump -uroot -p briup s_emp>test2.sql
+	
+	导出多个数据库到本地sql文件中
+	mysqldump  - -help 查看mysqldump命令后面可以
+	跟那些参数
+	mysqldump -uroot -p密码 	- -databases
+	数据库1 数据库2 数据库3... >本地sql文件
+	mysqldump -uroot -p --databases 
+		briup mysql test>test3.sql
+	
+	把用户下所有数据库导出到一个文件
+	mysqldump -uroot -p --all-databases >test4.sql
+	
+	注意:如果命令行在单前导入文件的位置
+	直接写文件名，否则写绝对路径
+
+	window中cmd窗口命令
+	切换资盘 资盘名: 回车
+	e.g.——>. D: 回车
+	进入某一个目录 cd 目录名字
+	dir 产看单前目录下有那些文件
+	
+	单词提示键tab键
+
+	linx/unix
+	pwd产看单前绝对路径
+	cd 切换目录
+	ls查看单前目录
+	cd 后什么也不加是回到家目录。／home/用户名
+	cd ~回到家目录
+	cd .回到家目录
+	cd ..向上一级走一步（回退一步）
+	mkdir test 命令创建文件夹
+	cat 文件的名字 查看文件内容不能修改
+
+	select	column_name…
+	from table_name1,table_name2…
+	where 条件
+	group by 分组
+	having 组满足的条件
+	order by 排序
+	limit num 限定查出来前多少数据
+
+	执行顺序
+	from—>where—>group by—>having—>order by
+	—>select
+
+	select * from s_emp
+	select id,last_name,salary from s_emp
+	
+	查询薪水小于5000的所有员工信息
+	select id,last_name,salary
+	from s_emp
+	where salary<5000
+
+	distinct 去重
+
+	select distinct salary
+	from s_emp;
+	
+	select distinct salary,last_name
+	from s_emp;
+	
+	注意:distinct 去重操作，只能跟在select
+	后面，distinct去重看的是select后面跟的所有
+	列的组合，只有组合重复的时候才会忽略掉重复的数据
+
+	排序（升序，降序）
+	select id,last_name,salary
+	from s_emp
+	order by salary;
+
+	select id,last_name,salary
+	from s_emp
+	order by salary,id desc;
+	
+	select id,last_name,salary
+	from s_emp
+	order by 3,1 desc;
+	
+	select id ids,last_name,salary sal
+	from s_emp
+	order by sal,ids desc;
+
+	注意:默认情况下或不指名排序下，是ASC		
+	order by 后面可以跟多列，分别指明排序
+	规则，首先针对第一列排序，第一列相同的基于
+	第二列排序，以此类推
+
+	order by后面也可以跟数字（数字代表列在
+	select后面的位置，从1开始）
+
+	select id,last_name
+	from s_emp
+	order by last_name
+
+	基于中文排序（像字母的排序形式排序）
+	select id,name
+	from stu
+	order by name
+	默认情况下数据库编码是UTF8的时候排序
+	是基于UTF的排序规则
+	第一种方式
+	select id,name
+	from stu
+	order by convert(name using GBK)
+	第二种方式
+	create table tea(
+	id int primary key,
+	name varchar(22)
+	)default charset=GBK
+
+	单行函数（对应数据库中表查询每一行都有处理结果）
+	e.g.：select now() from s_emp
+	     s_emp有多少行就输出多少个时间
+	     字符函数 时间函数 数字函数都是单行函数	
+	组函数（对分组之后的每一组数据输出一个结果）
+	
+	查询所有员工的平均薪水
+	select avg(salary)
+	from s_emp;
+
+	select last_name,avg(salary)
+	from s_emp;
+	允许，组函数把整个表单做一个组，最终输入一个结果也就是是一行
+	数据，如果还有其它的列取值没有分组之前的第一行
+		
+	count 计数
+	查询员工表中总人数
+
+	select count(*)
+	from s_emp
+	select count(salary)
+	from s_emp
+
+	注意：null值不计数
+	select count(salary<1000)
+	from s_emp
+
+	注意： salary<1000得到1
+	     >=1000得到的是0
+	不管得到的是0或者1，都会进行统计
+
+	max
+	查询员工表中最高的工资
+	select max(salary)
+	from s_emp;
+	
+	查询员工表中最小的工资
+	select min(salary)
+	from s_emp;
+
+	STDDEV 求标准差
+	求员工工资的标准差
+	select STDDEV(salary)
+	from s_emp;
+
+	sum
+	查询员工表中所有工资总和
+	select sum(salary)
+	from s_emp
+
+
+	group by分组
+
+	查询每个部门的平均工资
+	select	dept_id,avg(salary)
+	from s_emp
+	group by dept_id
+	
+	查询员工表中每种职位的平均工资
+	select count(*),title
+	from s_emp
+	where title!=‘Stock Clerk’
+	group by title
+	
+
+	select count(*),title,last_name
+	from s_emp
+	where title!=‘Stock Clerk’
+	group by title
+	
+	注意:建议select后面只跟组函数和group
+	by 后面出现的列
+	原因：select后面跟了group by后面没有出现
+	的列，没出现的列取一行内容
+
+	group by 后面出现的多列是一个组合
+
+	select id,last_name
+	from s_emp
+	group by id,last_name
+
+	having 可以不出现，但是一旦出现
+	必须加在group by 后面，对分组之后的
+	数据进行限定
+
+	查询部门平均薪水高于1400的所有部门编码
+	select dept_id,avg(salary) 
+	from s_emp
+	group by dept_id
+	having avg(salary)>1400
+
+	select dept_id,avg(salary) avg 
+	from s_emp
+	group by dept_id
+	having avg>1400
+	order by dept_id desc;
+	
+	limit [offset,] M
+	offset 偏移位置（起始位置）
+	M 表示取多少个数据
+	分页操作
+
+	select id,last_name
+	from s_emp
+	limit 3;
+
+	select id,last_name
+	from s_emp
+	limit 0,3;
+
+	select id,last_name
+	from s_emp
+	limit 3,3;
+
+	select id,last_name
+	from s_emp
+	limit 6,3;
+	注意:偏移位置是基于行数，从0开始
+	0表是第一行
+
+	select dept_id,avg(salary) avg 
+	from s_emp
+	group by dept_id
+	having avg>1400
+	order by dept_id desc
+	limit 0 2 
+
+	like 模糊查询
+	%表示的是0到多个字符
+	_表示的是一个字符
+	\转义符
+	查询以M开头的所有员工信息
+	select id,last_name,salary
+	from s_emp
+	where last_name like ‘M%’
+	
+	查询名字第二个字母是a的所有员工信息
+	select id,last_name,salary
+	from s_emp
+	where last_name like ‘_a%’
+
+	insert into s_emp(id,last_name,salary) 
+	values(28,’_briup’,3000);
+
+	查询用户名以下划线开头的所有用户信息
+	select id,last_name,salary
+	from s_emp
+	where last_name like ‘\_%’;
+
+	自查询（嵌套查询）
+
+	where(查询条件) 把内部查询的结果作为外部查询的条件
+
+	查询Smith所在部门的平均工资
+
+	select dept_id
+	from s_emp
+	where last_name=‘Smith’
+	//41
+	
+	select avg(salary)
+	from s_emp
+	where dept_id=()
+	
+	整合
+	select avg(salary)
+	from s_emp
+	where dept_id=(select dept_id
+	from s_emp
+	where last_name=‘Smith’)
+
+	查询工资大于41号部门平均工资的所有员工信息
+
+	1查询41号部门的平均工资
+	select 	avg(salary)
+	from s_emp
+	where dept_id=41
+	2，求员工工资大于平均工资
+	select id,last_name,salary
+	from s_emp
+	where salary>()
+
+	整合
+	select id,last_name,salary
+	from s_emp
+	where salary>(select avg(salary) from s_emp where dept_id=41
+	)
+	from (查询条件) 把内部查询的结果作为一张表(该表并不是
+	磁盘中存在的，只是内存中有)
+
+	查询所有部门的最大工资，并且显示该最大工资对应的员工
+
+	select id,last_name,salary
+	from s_emp
+	order by salary desc
+
+	select p.last_name,max(p.salary),p.dept_id
+	from (select id,last_name,salary,dept_id from s_emp order by salary desc) p
+	group by p.dept_id
+
+	注意：最大工资如果重复只能选一个，所以这种情况有带改进
+
+	=all 
+	
+	select id,last_name,salary,dept_id
+	from s_emp s
+	where salary=all(select max(salary) from s_emp d where d.dept_id=s.dept_id)
+
+	where 遍1行
+	 1 | Velasquez    | 2500.00 |      50
+
+	select max(salary)
+			from s_emp d
+			where d.dept_id=50
+	
+	第二次where
+	2 | Ngao         | 1450.00 |      41 
+	select max(salary)
+			from s_emp d
+			where d.dept_id=41
+	exists(查询条件) 把外部查询的结果作为内部查询的条件
+
+	exists 有结果是true或1
+
+	查询有员工的部门信息
+
+	select id,name
+	from s_dept
+	where id in(select dept_id from s_emp)
+	等价
+	select id,name
+	from s_dept
+	where id=any(select dept_id from s_emp)
+	等价
+	select id,name
+	from s_dept d
+	where exists(select * from s_emp s where s.dept_id=d.id)
+
+	
+	union 求并集操作
+	
+	select id,last_name
+	from s_emp
+	where id<6
+	union
+	select id,last_name
+	from s_emp
+	where id>4 and id<10;
+	
+	注意：union中间有重覆的数据只保留一个
+
+	union 列的数量对应，类型可以不一致,
+	并且表可以来源于不同的表，类型不一致的自动
+	转换为blob
+
+	select id,last_name
+	from s_emp
+	where id<6
+	union
+	select name,id
+	from s_dept
+		
+	(select id,last_name
+	from s_emp
+	where id<6 
+	order by id desc)
+	union
+	(select id,last_name
+	from s_emp
+	where id>22
+	order by id desc);
+	注意：用union操作的时候排序在没有limit限制的情况下
+	排序全部失效
+	
+	(select id,last_name
+	from s_emp
+	where id<6 
+	order by id desc limit 5)
+	union
+	(select id,last_name
+	from s_emp
+	where id>22
+	order by id desc limit 6);
+
+	union all 并集操作的时候有重复元素全显示出来
+	select id,last_name
+	from s_emp
+	where id<6
+	union all
+	select id,last_name
+	from s_emp
+	where id>4 and id<10;
+
+	多表查询
+	
+	内链接(inner  join)
+		等值链接
+		不等值链接
+	外链接（outer join）
+		左外链接
+		右外链接
+		全链接
+	自链接
+
+	笛卡尔积
+	A{a,b,c},B{d,f}
+	A*B={a,d},{a,f},{b,f}{b,d}{c,d}{c,f}
+
+	stu
+	id	name
+	1	lisi
+	2 	tom
+	tea 
+	id	name
+	1	rose
+	2 	lili
+	3	Jake
+		
+	select s.id,s.name,t.id,t.name
+	from stu s,tea t
+	结果
+	id	name	id	 name
+	1	lisi	1	rose
+	1	lisi	2 	lili
+	1	lisi	3	Jake
+	2 	tom	1	rose	
+	2 	tom	2 	lili
+	2 	tom	3	Jake
+
+	求交集
+	select *
+	from stu inner join tea;
+	等价的
+	select * 
+	from stu cross join tea;
+
+	针对两个表中相同的列过滤（名字和类型一致）
+	select * 
+	from stu inner join tea using(id)
+	注意：查询的结果id共享（两个表id相同的
+	列值）
+	select * 
+	from stu cross join tea using(id);
+
+	等值链接
+	一般情况具有外键维护的多张表为了拼出一个完整的数据
+	做等值链接
+	wife
+	id	name
+	1	lisi
+	2 	tom
+	3	kk
+	hus 
+	id	name	wife_id
+	1	rose	3
+	2 	lili	1
+	3	Jake	2
+
+	select * 
+	from wife w,hus h
+	id	name	id	name	wife_id
+	1	lisi	1	rose	3
+	1	lisi	2 	lili	1
+	1	lisi	3	Jake	2
+	2 	tom	1	rose	3
+	2 	tom	2 	lili	1
+	2 	tom	3	Jake	2
+	3	kk	1	rose	3
+	3	kk	2 	lili	1
+	3	kk	3	Jake	2
+	where w.id=wife_id
+	id	name	id	name	wife_id
+	1	lisi	2 	lili	1
+	2 	tom	3	Jake	2
+	3	kk	1	rose	3
+	
+	查询员工及所在部门的信息
+	s_emp 	s_dept
+	dept_id	id
+		
+	select s.last_name,s.dept_id,d.id,d.name
+	from s_emp s,s_dept d
+	where dept_id=d.id
+	查询员工及所在部门的信息及部门所在的区域
+	s_emp	s_dept	  s_region
+	dept_id	id
+		region_id id
+
+	select s.last_name,s.dept_id,d.id,d.name,d.region_id,g.id,g.name
+	from s_emp s,s_dept d,s_region g
+	where dept_id=d.id and d.region_id=g.id
+	
+	不等值链接
+	把本身不具有关联关系的表通过逻辑运算符
+	建立起来关联关系
+
+	create table rank(
+	id int primary key,
+	name varchar(22),
+	minSal int,
+	maxSal int
+	);
+	insert into rank values(1,’蓝领’,0,1000);
+	insert into rank values(2,’白领’,1001,2000);
+	insert into rank values(3,’金领’,2001,3000);
+	
+	s_emp
+	id 	last_name	salary
+	1	lili		975
+	2	tom		1230
+
+	select *
+	from s_emp s,rank r
+	id last_name salary minsal maxsal name id
+	1 lili	      975.  0	    1000   蓝领 1
+	1 lili	      975.  1001    2000   白领 2
+	1 lili	      975.  2001    3000   金领 3
+	2 tom	      1230.  0	    1000   蓝领 1
+	2 tom	      1230.  1001    2000   白领 2
+	2 tom	      1230.  2001    3000   金领 3
+	where s.salary between r.minSal and r.maxSal
+	id last_name salary minsal maxsal name id
+	1 lili	      975.  0	    1000   蓝领 1
+	2 tom	      1230.  1001    2000   白领 2
+	
+	select s.last_name,s.salary,r.minSal,r.maxSal,r.name name
+    	from s_emp s,rank r
+    	where s.salary between r.minSal and maxSal
+	
+	查询各个等级的人数
+	select count(*),p.name
+	from () p
+	group by p.name
+
+	整合
+	select count(*),p.name
+	from (select s.last_name,s.salary,r.minSal,r.maxSal,r.name name from s_emp s,rank r where s.salary between r.minSal and maxSal) p
+	group by p.name
+	
+
+	左外链接
+	wife
+	id	name
+	1	lisi
+	2 	tom
+	3	kk
+	4  	pp	
+	hus 
+	id	name	wife_id
+	1	rose	3
+	2 	lili	1
+	3	Jake	2
+	4	mm	null
+	
+	在等值链接的基础之上，把左边的当作主表
+	，右边的是从表，查询中即时左边在右边中没有
+	数据匹配也要现实出来
+
+	等值得到的结果
+	id	name	id	name	wife_id
+	1	lisi	2 	lili	1
+	2 	tom	3	Jake	2
+	3	kk	1	rose	3
+	4 	pp	null.   Null   null	
+
+	select *
+	from wife w left join hus h
+	on w.id=h.wife_id
+
+	注意：获取的数据谁少些后面
+	查询员工及部门信息，该员工及时没有分配
+	部门也要显示出来
+
+	select s.id,s.last_name,d.id,d.name
+	from s_emp s left outer join s_dept d
+	on s.dept_id=d.id
+
+	右链接：
+	在等值链接基础之上，左边的表主表，右边的表
+	从表，把从表中在主表中没有匹配的数据显示
+	出来（查询数据谁少在前面）
+
+	wife
+	id	name
+	1	lisi
+	2 	tom
+	3	kk
+	4  	pp	
+	hus 
+	id	name	wife_id
+	1	rose	3
+	2 	lili	1
+	3	Jake	2
+	4	mm	null
+	
+
+	id	name	id	name	wife_id
+	1	lisi	2 	lili	1
+	2 	tom	3	Jake	2
+	3	kk	1	rose	3
+	null 	null	4.   	mm   null	
+	
+	select * 
+	from wife w right join hus h
+	on w.id=h.wife_id 
+
+	查询员工及部门信息，及时部门没有员工也要
+	显示出来，
+
+	select s.id,s.last_name,d.id,d.name
+	from s_emp s right join s_dept d
+	on s.dept_id=d.id
+
+	全链接
+	在等值链接基础之上，主表和从表中不匹配的
+	数据全部显示出来
+	wife
+	id	name
+	1	lisi
+	2 	tom
+	3	kk
+	4  	pp	
+	hus 
+	id	name	wife_id
+	1	rose	3
+	2 	lili	1
+	3	Jake	2
+	4	mm	null
+	
+
+	id	name	id	name	wife_id
+	1	lisi	2 	lili	1
+	2 	tom	3	Jake	2
+	3	kk	1	rose	3
+	null 	null	4.   	mm   null	
+	4  	pp 	null	null	null
+	select * 
+	from wife w left join hus h
+	on w.id=h.wife_id 
+	union
+	select * 
+	from wife w right join hus h
+	on w.id=h.wife_id 
+
+	查询员工及部门信息，员工没有部门要显示出来
+	有部门没有员工该部门也要显示出来
+	select s.id,s.last_name,d.id,d.name
+	from s_emp s left join s_dept d
+	on s.dept_id=d.id
+	union
+	select s.id,s.last_name,d.id,d.name
+	from s_emp s right join s_dept d
+	on s.dept_id=d.id
+
+	主表数据多从表少
+	union	
+	主表数据少从表多
+	
+
+
+	s_emp
+	自链接(自身和自身建立起来联系)
+	
+	查询员工及其经理的信息
+
+	s_emp
+	id	manager_id
+
+	提示，把第一张表作为员工，第二张表作为经理
+	select s.last_name,s.manager_id,m.id,m.last_name
+	from s_emp s,s_emp m
+	where s.manager_id=m.id
+
+
+
+
+
+	视图
+	视图是由查询结果形成的一张虚拟表(不是临时表)
+	视图创建之后在mysql中使用就跟数据库中的表一样
+
+	create or replace view 视图名 as select 语句
+	drop view 视图名
+	alter view 视图名 as select 语句
+
+	注意：视图中的列和select后面跟的列或别名相同
+	为什么要视图
+	1 可以简化查询
+	查平均工资前三高的部门
+
+	create view qiansan as 
+	select dept_id,avg(salary) as pj 
+	from s_emp 
+	group by 	dept_id;
+
+	select * from qiansan order by pj desc limit 3
+
+	2 可以进行权限控制
+	把表的权限封闭，但是开放相应的视图查看权限，视图中只开放部分数据
+
+	3 大数据分表时可以用到
+	比如 一般情况下（无特殊优化）表的行数超过200w时，操作就会明显变慢，
+	可以把一张表的数据，拆分成多张表来存	放
+	把一张表分散到4张表中的分散方法很多，最常用可以用id取模来计算
+	id%4+1= [1,2,3,4]
+	然后把行分散到不同的表中，查询时指定不同的表名。
+	还可以利用视图，把4张表形成一张视图，看起来像是一整张表
+	4 便于数据库的维护整理
+	A B表合成C表，要想让原来的sql不变，可以通过C表，把A B表结构相同数
+	据相同的视图创建出来继续使用
+
+	5 隐藏数据：如工资
+
+
+	视图与表的关系
+	如果表的数据改变了，那么视图中的数据会随之改变
+	如果视图的数据改变了，得分情况看，当视图的数据和表的数据是一一对应的，
+	视图数据改了可以影响表，如果视图中	的某列数据是从多张表中进过运
+	算得到的，那么不允许更改视图中的数据
+
+	视图的algorithm（算法）
+	create [algorithm=算法] view 视图名 as select 查询
+	Algorithm = merge/temptable/undifined
+	Merge:当引用视图时，引用视图的语句与定义视图的语句合并
+	Temptable:当引用视图时，根据视图的创建语句建立一个临时表
+	undefined：未定义，自动让系统帮你选
+
+	merge，意味着视图只是一个语句，创建视图时，把创建视图的语句记录，在查询视图时，
+	解析查询视图的语义，并和	创建视图时记录的语句结合，形成新的查询语句
+
+	例子：创建视图，工资大于1000的员工，然后再此视图上查询，工资小于3000的员工
+	查询视图的过程中，其实是把两个语句合并在一起
+	真正发挥作用的是 where salary <3000 and salary >1000
+	最终只是拼凑了语句，然后去查询s_emp表
+
+
+	查询每个部门工资最高的员工
+		查询每个部门最高工资员工信息
+	select last_name,salary,dept_id 
+	from s_emp 
+	order by dept_id,salary desc
+
+select max(p.salary),p.last_name,p.dept_id
+from (select last_name,salary,dept_id from s_emp order by dept_id,salary desc) p
+group by p.dept_id
+
+创建薪水降序的视图
+Create view avg
+As 
+select last_name,salary,dept_id 
+from s_emp 
+order by dept_id,salary desc
+
+对视图的查询
+Select max(salary),last_name,dept_id
+From avg
+Group by dept_id
+
+Mysql数据库自动拼接的结果
+select max(salary),last_name,dept_id 
+from s_emp 
+Group by dept_id
+order by dept_id,salary desc
+
+	解决方案，在创建视图时创建临时表
+Create algorithm=temptable view avg
+As 
+select last_name,salary,dept_id 
+from s_emp 
+order by dept_id,salary desc
+
+Select max(salary),last_name,dept_id
+From avg
+Group by dept_id
+等价
+select max(p.salary),p.last_name,p.dept_id
+from (select last_name,salary,dept_id from s_emp order by dept_id,salary desc) p
+group by p.dept_id
+
+temptable是根据创建视图的语句瞬间创建一张临时表
+
+	字符集与校对集
+
+	创建表时，我们见过 
+	create table 表名(
+	列名
+	)charset utf8;
+
+	set names gbk;
+
+	mysql 的字符集设置非常灵活
+	服务器默认字符集
+	数据库默认字符集
+	表默认字符集
+	列字符集
+	如果某一个级别上没有指定字符集，则继承上一级
+
+	以表声明UTF8为例，存储的数据在表中，最终是UTF8 
+
+	连接器|字符转化器：
+	1.设置客户端传过来的数据是用什么编码转化
+	2.自动把编码转化为mysql数据库支持的编码
+
+	1 告诉服务器，客户端发送的数据是什么编码的
+	character_set_client
+	2 告诉连接器，要转化成什么编码
+	character_set_connection
+	3 告诉客户端，查询出来的结果是什么编码
+	character_set_results
+
+	如果以上三种字符集都为N，则可以 set names N
+
+	推论：什么时候会乱码
+
+	1 client 声明的编码与实际编码不同
+
+	2 results 与客户端编码不同
+
+	3 字符丢失，将编码长度长的编码，转化成编码长度短的编码 GBK转成latin1
+	connection和服务器的字符集比client小
+	set character_set_client = gbk
+	set character_set_connection=latin1
+	set character_set_result=gbk
+
+
+	校对集 collations
+	字符集的排序规则，一种字符集有一种或者多种校对集
+	排序按照某种规则排，这个规则就是校对集
+
+	a,B,c,D 排序后还是 a,B,c,D 
+	校对集更改后，变成 B,D,a,c
+
+	create table test2(str varchar(10)) 
+	charset=utf8 collate = utf8_bin
+
+	insert into test2 values
+	('a'),('B'),('c'),('D');
+
+	
+	触发器 trigger
+
+	事件源  事件对象   监听器
+
+	监视的是哪张表（订单）
+	监视的是哪种行为（增删改）
+	触发什么行为（增删改）
+	什么时间触发（after/before）
+
+	作用：监视某种情况，并触发某种操作
+
+	观察一下场景
+	一个电子商城
+	商品表 good
+	主键     商品名      库存
+	1 	电脑		28
+	2        自行车      12
+	create table goods(
+	id int primary key,
+	good_name varchar(50),
+	kc int
+	)
+	insert into goods values
+	(1,'电脑',50),
+	(2,'手机',50),
+	(3,'自行车',50)#
+
+	订单表 order
+	订单主键     商品外键      购买数量
+	1            1             3
+	2            2             5
+	create table order1(
+	id int primary key,
+	good_id int ,
+	num int
+	)
+
+	create trigger tg1 
+	after  insert 
+	on order1
+	for each row
+	begin
+	update goods set kc = kc-new.num
+	where new.good_id = id;
+	end;
+
+	;号作用  
+	 1 分割多条sql语句
+	2 提交执行sql语句
+	定义提交的标记
+	delimiter #
+
+
+
+
+
+	当购买了3个电脑后，电脑库存立刻-3
+	//sql代表下订单
+	insert into order(gid,num) values(1,3)
+	//下单后立刻会做的事
+	update good set num = num-3;
+
+	使用触发器，可以帮助我们完成上述问题，我们可以监视某张表的变化，当发生某种变化时，立刻触发某个操作
+
+	触发器能监视的操作
+	增      删      改
+
+	触发器能触发的操作
+	增		删 		改
+
+	触发器4要素
+	监视地点（table）   监视事件
+	触发时间（after/before） 触发事件
+
+	create trigger t1 
+	after/before    insert/update/delete
+	on 表名
+	for each row #这句话是固定的，mysql没有其他数据库触发器功能强
+	begin
+	sql语句
+	end
+
+	写触发器的步骤
+	1 第一delimiter $ 把语句结束符改成$
+
+	2  create trigger tri1 after insert on order1 for each row  begin  update good set num = num -3 where id = 2; end$
+
+	进一步修改
+
+	如果在触发器中引用行的值
+
+	对于insert 而言，新增的行用 new 来表示
+	行中每一列的值，用new.列名来表示
+	create trigger tri1 after insert on order1 for each row  begin  update good set num = num -new.num where id = new.good_id; end$
+
+
+	1 撤销一个订单，库存相应增加
+	删除一个旧行，可以用old 来表示行中每一列的值，用old.列名
+
+	create trigger tg2 
+	after  delete 
+	on order1
+	for each row
+	begin
+		update goods set kc = kc + old.num
+		where id = old.good_id;
+	end#
+
+
+	2 修改一个订单的数量时，库存相应改变
+	old获得没更改之前的行中的值，
+	new获得更改之后的行中的值
+
+	3 研究一下before 和 after 的区别
+	按照以上写法，如果订单数量较大，库存会变成负数
+
+	after先完成数据的增删改，再触发，触发中的语句执行晚于增删改，不能对增删改做出产生影响
+	before是先完成触发，再进行增删改，触发的语句执行早于增删改，可以对增删改做出影响
+	begin
+		if 逻辑表达式
+			then 做某某事情
+		else 做某某事情;
+		end if;
+	
+
+
+   练习：对于所下订单进行判断，如果订单数量>5，
+	认为是恶意订单，强制把所订的商品数量改成5
+Create trigger tg4
+Before insert
+On order1
+For each row
+Begin
+If new.num>5
+Then set new.num=5;
+End if;
+Update goods set kc=kc-new.num
+Where id=new.good_id;
+end#
+	注意：中间加if语句一定有end if对应
+	更改插入的值一定加set
+
+	针对目标相同的操作同时可以声明多个触发器
+	不会覆盖（针对insert before和after）
+	测试：insert 同时加两个after触发器
+	看是否覆盖
+
+	删除触发器
+	drop trigger trigger_name
+	展示所有的触发器 show triggers
+
+	
+	mysql 数据库中，对于同样的数据，有着不同的存储方式和管理方式
+	成为存储引擎。
+	存储引擎
+ 	几个常用存储引擎的特点
+	下面我们重点介绍几种常用的存储引擎并对比各个存储引擎之间的区别和推荐使用方式。
+
+
+	最常使用的2种存储引擎：
+
+    Myisam是Mysql的默认存储引擎。当create创建新表时，未指定新表的存储引擎时，默认使用Myisam。
+    每个MyISAM在磁盘上存储成三个文件。
+    文件名都和表名相同，扩展名分别是.frm（存储表定义）、.MYD (MYData，存储数据)、.MYI (MYIndex，存储索引)。
+    数据文件和索引文件可以放置在不同的目录，平均分布io，获得更快的速度。   
+    InnoDB存储引擎提供了具有提交、回滚和崩溃恢复能力的事务安全。
+    但是对比Myisam的存储引擎，InnoDB写的处理效率差一些并且会占用更多的磁盘空间以保留数据和索引。
+
+	如何选择合适的存储引擎
+	选择标准：根据应用特点选择合适的存储引擎，对于复杂的应用系统可以根据实际情况选择多种存储引擎进行组合。
+
+	下面是常用存储引擎的适用环境：
+
+    MyISAM：默认的MySQL插件式存储引擎，它是在Web、数据仓储和其他应用环境下最常使用的存储引擎之一
+    InnoDB：用于事务处理应用程序，具有众多特性，包括ACID事务支持。
+    Memory：将所有数据保存在RAM中，在需要快速查找引用和其他类似数据的环境下，可提供极快的访问。
+    Merge：允许MySQL DBA或开发人员将一系列等同的MyISAM表以逻辑方式组合在一起，并作为1个对象引用它们。对于诸	如数据仓储等VLDB环境十分适合。
+
+
+
+
+	 某一个单一逻辑 = 事务 = 一组操作 
+
+	两个账户转账
+	A 账户  5000
+	B 账户  5000
+
+	转账这个过程，如果分步来看，假如就两步 B 账户先增加金额，A账户后减少金额
+	在过去的数据库设计中可能会出现，在B账户刚增加金额，A账户还没减少金额的时候，B账户的钱立刻取出来，A账户	说我不转账了，退卡
+	就出现了金融诈骗
+
+	1 张三A   李四B
+		B+   A-
+	  张三转账的过程中，李四看不到账户的变化
+	  事务的隔离性
+
+	2 张三A   李四B
+		A-   B+
+	  转账过程中如果停电了，执行过的步骤
+	  应该不生效（回退）
+	  事务的原子性
+
+	3 A 账户  5000
+	  B 账户  5000
+	  事务的一致性
+ 
+	4  如果转到错误的人的账户上
+	钱是退不回来的
+	事务一旦完成，事务中所涉及的数据
+	不能再被此次事务所更改
+
+
+
+
+	事务的特点
+	1、数据库事务必须具备ACID特性，ACID是Atomic（原子性）、Consistency（一致性）、Isolation（隔离	性）和Durability（持久性）的英文缩写。
+	1）原子性（Atomicity）
+
+	一个事务(transaction)中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。
+	事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。
+
+	2）一致性（Consistency）
+
+	事务的一致性指的是在一个事务执行之前和执行之后数据库都必须处于一致性状态。如果事务成功地完成，
+	那么系统中所有变化将正确地应用，系统处于有效状态。如果在事务中出现错误，那么系统中的所有变化
+	将自动地回滚，系统返回到原始状态。
+
+	3）隔离性（Isolation）
+
+	指的是在并发环境中，当不同的事务同时操纵相同的数据时，每个事务都有各自的完整数据空间。由并发事务所做的修	改必须与任何其他并发事务所做的修改隔离。事务查看数据更新时，数据所处的状态要么是另一事务修改它之前的状	态，要么是另一事务修改它之后的状态，事务不会查看到中间状态的数据。
+
+	4）持久性（Durability）
+
+	指的是只要事务成功结束，它对数据库所做的更新就必须永久保存下来。即使发生系统崩溃，重新启动数据库系统后，	数据库还能恢复到事务成功结束时的状态。
+
+	选取正确的存储引擎
+	InnoDB  BDB
+
+	set autocommit=off
+
+	开启事务
+	在MySQL命令行的默认设置下，事务都是自动提交的，即执行SQL语句后就会马上执行COMMIT操作。
+	因此要显示地开启一个事务须使用命令BEGIN或START TRANSACTION，或者执行命令
+	SET AUTOCOMMIT=0，用来禁止使用当前会	话的自动提交。
+	start transaction /执行DML语句
+	sql...
+	[SAVEPOINT 名字;  ]
+	sql...
+	[rollback to 名字]  (不会结束事务)
+	sql...
+	commit/rollback代表事务结束
+	有一些语句会影响事务的结束
+	事务没结束开启下一次事务
+  	  DDL语句，ALTER DATABASE、ALTER EVENT、ALTER PROCEDURE、ALTER TABLE、ALTER VIEW、CREATE TABLE、DROP TABLE、RENAME TABLE、TRUNCATE TABLE等；
+    	修改MYSQL架构的语句，CREATE USER、DROP USER、GRANT、RENAME USER、REVOKE、SET PASSWORD；
+    	管理语句，ANALYZE TABLE、CACHE INDEX、CHECK TABLE、LOAD INDEX INTO CACHE、OPTIMIZE TABLE、REPAIR TABLE等。
+	注意：DDL ,修改MYSQL架构的语句，管理语句
+	开启一个新事物的时候会隐式提交前面的事务（等价于
+	写了commit）
+
+
+
+	事务隔离级别
+
+	指的是 隔离性的强弱，主要是针对以下三个问题
+	这三个问题，有时候在逻辑中是允许出现，那就要求隔离
+	不那么强
+	有时候在这个问题在逻辑中不允许出现，那就要求
+	隔离性比较强
+
+	隔离级别低    隔离级别高
+
+		不可重复读：
+			在同一事务中，两次读取同一数据，得到内容不同
+            会话1：查询一条记录
+                  -------------->会话2：更新会话1查询的记录
+                  -------------->会话2：调用commit进行提交
+            会话1：再次查询上次的记录
+			此时会话1对同一数据查询了两次，可得到的内容不同，称为不可重复读
+		幻影读：
+			同一事务中，用同样的操作读取两次，得到的记录数不相同
+
+           	会话1：查询表中所有记录
+                              --------------> 会话2：插入一条记录
+                              --------------> 会话2：调用commit进行提交
+            	会话1：再次查询表中所有记录
+            
+            此时事务1两次查询到的记录是不一样的，称为幻读
+		脏读：会话1读到会话2未提交的数据。
+		
+		为了处理这些问题，SQL标准定义了4类隔离级别，包括了一些具体规则，用来限定事务内外的哪些改变是		可见的，哪些是不可见的。低级别的隔离级一般支持更高的并发处理，并拥有更低的系统开销。
+			READ UNCOMMITTED 幻影读、不可重复读和脏读都允许。
+			READ COMMITTED 允许幻影读、不可重复读，不允许脏读
+			REPEATABLE READ  (默认)允许幻影读，不允许不可重复读和脏读
+			SERIALIZABLE 幻想读、不可重复读和脏读都不允许
+
+	设置隔离级别
+	set session transaction isolation level READ unCOMMITTED ;
+
+	set global transaction isolation level READ unCOMMITTED ;
+
+
+
+	Read Uncommitted（读取未提交内容）
+
+       在该隔离级别，所有事务都可以看到其他未提交事务的执行结果。本隔离级别很少用于实际应用，因为它的性能也不比	其他级别好多少。读取未提交的数据，也被称之为脏读（Dirty Read）。
+	Read Committed（读取提交内容）
+	
+
+	解决脏读
+       这是大多数数据库系统的默认隔离级别（但不是MySQL默认的）。它满足了隔离的简单定义：一个事务只能看见已经提	交事务所做的改变。这种隔离级别 也支持所谓的不可重复读（Nonrepeatable Read），因为同一事务的其他实例	在该实例处理其间可能会有新的commit，所以同一select可能返回不同结果。
+	Repeatable Read（可重读）
+
+       这是MySQL的默认事务隔离级别，它确保同一事务的多个实例在并发读取数据时，会看到同样的数据行。不过理论上，	这会导致另一个棘手的问题：幻读 （Phantom Read）。简单的说，幻读指当用户读取某一范围的数据行时，另一	个事务又在该范围内插入了新行，当用户再读取该范围的数据行时，会发现有新的“幻影” 行。InnoDB和Falcon存	储引擎通过多版本并发控制（MVCC，Multiversion Concurrency Control）机制解决了该问题。
+
+	Serializable（可串行化）
+       这是最高的隔离级别，它通过强制事务排序，使之不可能相互冲突，从而解决幻读问题。简言之，它是在每个读的数据	行上加上共享锁。在这个级别，可能导致大量的超时现象和锁竞争。 
+
+
+	
+
+	mysql命令行 
+	输出屏幕内容到文件中
+	tee filename
+ 
+
+
+	存储过程
+	就是一组SQL语句集，功能强大，可以实现一些比较复杂的逻辑功能，类似于JAVA语言中的方法；
+
+	注意：存储过程跟触发器有点类似，都是一组SQL集，但是存储过程是主动调用的，且功能比触发器更加强大，触发器	是某件事触发后自动调用；
+	类似于函数(方法)，就是把一段代码封装起来
+	如果要执行该段代码，就可以调用该函数
+	在封装的代码中，可以使用if  else  case while 等控制结构，可以进行sql编程
+
+	查看现有的存储过程
+
+	show procedure status 
+
+	删除存储过程
+
+	drop procedure
+
+
+	调用存储过程
+	call p1()
+
+	创建存储过程
+	delimiter #
+
+
+	例1 体会封装sql
+	create procedure p1()
+	begin
+	select * from s_emp;
+	end$
+
+	例2 体会参数
+
+	create procedure pr2(name varchar(20))
+	begin
+	select * from briup.s_emp 
+	where last_name = name;
+	end#
+
+	call p2('Winnie')
+
+	例3 体会控制结构
+	create procedure p3(emp_id int,sal float(11,2))
+	begin 
+  	  if emp_id is not null 
+    	   then select last_name,salary,dept_id from s_emp where id = emp_id and salary = sal;
+  	  else 
+       select 'id为空' as msg;
+ 	   end if;
+	end$
+
+	例4 计算1-N的和
+	int i = 1;
+	int sum = 0;
+	while(i<n){
+		sum+=i;
+		i++;
+	}
+
+	create procedure pr4(n int)
+	begin 
+		declare i int;
+		declare s int;
+		set i = 1;
+		set s = 0;
+    	while i<s=n do
+    		set s = s + i;
+    		set i = i + 1;
+   	 end while;
+   	 select s as sum;
+	end$
+
+	在mysql 中，可以把存储过程理解成函数
+	但是有一定区别
+	1 名称不同，function   procedure
+	2 存储过程没有返回值
+
+create procedure p4(n int) 
+begin 
+declare i int; 
+declare s int;
+set i=1; 
+set s=0; 
+while i<n do 
+set s=s+i;
+set i=i+1; 
+end while;
+select s;
+end#
+
+Create trigger tg4
+Before insert
+On order1
+For each row
+Begin
+If new.num>5
+Then set new.num=5;
+End if;
+Update goods set kc=kc-new.num
+Where id=new.good_id;
+end#
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+	
+
+
+
+
+
+

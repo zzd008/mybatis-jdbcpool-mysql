@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.briup.manytomany.ManyToManyMapper">
+			<insert id="saveStu" parameterType="stu" useGeneratedKeys="true" keyProperty="id">
+				insert into stu(name,gender,major,frader) values(#{name},#{gender},#{major},#{grader})
+			</insert>				
+			<insert id="saveCourse" parameterType="Course" useGeneratedKeys="true" keyProperty="id">
+				insert into course(course_code,course_name) values(#{course_code},#{course_name})
+			</insert>			
+			<!-- 多个参数不用parameterType标记了 -->	
+			<insert id="selectCourse">
+				insert into stu_course(stu_id,course_id) values(#{stu.id},#{course.id})
+			</insert>				
+				
+			<resultMap type="course" id="courseModel">
+				<id property="id" column="ids"/>
+				<result property="course_code" column="course_code"/>
+				<result property="course_name" column="course_name"/>
+			</resultMap>
+			
+			<resultMap type="stu" id="stuM">
+				<id property="id" column="id"/>
+				<result property="name" column="name"/>
+				<result property="gender" column="gender"/>
+				<result property="major" column="major"/>
+				<result property="grader" column="frader"/>
+			</resultMap>
+			
+			<!-- 模板继承  把父模板中的配置加载到当前配置中-->
+			<resultMap type="stu" id="stuModel" extends="stuM">
+				<collection property="courses" resultMap="courseModel"></collection>
+			</resultMap>	
+			
+			
+			<resultMap type="course" id="courseM">
+				<id property="id" column="ids"/>
+				<result property="course_code" column="course_code"/>
+				<result property="course_name" column="course_name"/>
+				<collection property="stus" resultMap="stuM"></collection>
+				
+			</resultMap>
+			
+			
+			<select id="findStuById" parameterType="int" resultMap="stuModel">
+				select s.id, s.name,s.gender,s.major,s.frader,c.course_code,c.course_name from stu s,stu_course sc,course c 
+				where s.id=sc.stu_id and sc.course_id=c.id and s.id=#{id}
+			</select>
+			
+			<select id="findCourseById" parameterType="int" resultMap="courseM">
+				select c.id ids,c.course_code,c.course_name,s.id, s.name,s.gender,s.major,s.frader from stu s,stu_course sc,course c 
+				where s.id=sc.stu_id and sc.course_id=c.id and c.id=#{id}
+			</select>
+			
+			
+			</mapper>

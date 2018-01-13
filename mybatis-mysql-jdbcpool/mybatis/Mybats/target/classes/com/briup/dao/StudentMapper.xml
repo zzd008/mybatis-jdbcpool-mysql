@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<!-- 关联接口：包名+接口 -->
+			<mapper namespace="com.briup.dao.StudentMapper" >
+				
+				<!-- 声明使用二级缓存 -->
+				<cache></cache>
+			
+				<!-- id指向接口中的方法名  parameterType指定接口中方法参数的类型：全包名+类名（别名）-->
+				<!-- #{}指的是传入对象的参数类型 -->
+				<!-- sql语句后没有分号 -->
+				<insert id="saveStudent" parameterType="stu">
+					insert into student(id,name,age,dob)
+					values(#{id},#{name},#{age},#{dob})
+				</insert>
+				
+				<delete id="deleteStudent" parameterType="int">
+					delete from student where id=#{idddd}
+					<!-- #{}获取传入的值 #{id}、#{idd}都可以 -->
+				</delete>
+				
+				<!-- 如果传入的是bean对象，则参数要与类中的字段对应 要写成#{age} 不能写成#{age1} -->
+				<update id="updateStudent" parameterType="stu">
+					update student set name=#{name} where id=#{id} and age=#{age}
+				</update>
+				
+				<!-- 参数类型： 全包名+类名：java.lang.Integer 这里写int即可 --> 
+				<!-- select标签语句中一定要有返回值 -->
+				<select id="findStudentById" parameterType="int" resultType="com.briup.bean.Student">
+					<!-- select * from student where id=#{id} -->
+					select id,name,age from student where id=#{id}
+				</select>
+				
+				 <!-- 列名和属性名字不一致可以给查询的列起一个别名,让它变成类中的名 --> 
+				<select id="findAllStudent" resultType="stu">   <!-- 返回类型为student，当返回多个时可以用list来接受，不能写成java.util.List -->
+					select *from student
+				</select>
+				
+				<!-- map只能接受一行，key为列名，value为值  当返回多行时，用list装map -->
+				<select id="findAllStudent1" resultType="map">
+					select *from student
+				</select>
+				
+				<select id="findAllStudent2" resultType="map"><!--返回值类型是数据库中每一行返回的类型  -->
+					select *from student
+				</select>
+				
+			</mapper>

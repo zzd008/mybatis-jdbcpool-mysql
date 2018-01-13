@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.briup.onetomany.OneToManyMapper">
+				<insert id="saveUser" parameterType="user">
+					insert into s_user values(null,#{name},#{password})
+				</insert>
+			
+				<insert id="saveOrder" parameterType="Order">
+					insert into s_order values(null,#{name},#{salary},#{user.userid})
+				</insert>
+				
+				<resultMap type="order" id="orderM">
+						<id property="orderid" column="orderid"/>
+						<result property="name" column="names"/>
+						<result property="salary" column="salary"/>
+				</resultMap>
+				
+				<resultMap type="User" id="userM">
+					<id property="userid" column="userid"/>
+					<result property="name" column="name"/>
+					<result property="password" column="password"/>
+					<collection property="orders" resultMap="orderM"></collection>
+				</resultMap>	
+					
+				<resultMap type="Order" id="orderM1">
+						<id property="orderid" column="orderid"/>
+						<result property="name" column="names"/>
+						<result property="salary" column="salary"/>
+						<result property="user.userid" column="userid"/>
+						<result property="user.name" column="name"/>
+						<result property="user.password" column="password"/>
+				</resultMap>
+				
+				<select id="findAllOrders" resultMap="userM" parameterType="int">
+					select u.userid,u.name,u.password,o.orderid,o.name names,o.salary
+					from s_user u,s_order o where u.userid=o.user_id and u.userid=#{id};
+				</select>
+				
+				<select id="findOrderById" resultMap="orderM1" parameterType="int">
+					select u.userid,u.name,u.password,o.orderid,o.name names,o.salary
+					from s_user u,s_order o where u.userid=o.user_id and o.orderid=#{id};
+				</select>
+				
+				
+			</mapper>

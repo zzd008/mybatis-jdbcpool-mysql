@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.briup.dynamicsql.DynamicSQLMapper">
+				<select id="findStudent" resultType="stu" parameterType="map">
+					select id,name,gender,major,frader grader
+					from stu
+					where 1=1
+					<!-- test得到的是布尔类型  id为map传进来的key -->
+					<if test="id!=0">
+						and id=#{id}
+					</if>
+					<if test="name!=null">
+						and name like#{name}
+					</if>
+					<if test="grader!=null">
+						and frader=#{grader}
+					</if>
+				</select>
+				
+				<select id="findStudent_choose" resultType="stu" parameterType="map">
+					select id,name,gender,major,frader grader
+					from stu
+					<!-- 只执行其中的一个,都没有的话执行最后一个 -->
+					<choose>
+						<when test="id!=null">
+						where id=#{id}
+						</when>
+						<when test="name!=null">
+						where name=#{name}
+						</when>
+						<otherwise>
+							1=1
+						</otherwise>
+					</choose>
+				</select>
+				
+				<select id="findStudent_where" resultType="stu" parameterType="map">
+					select id,name,gender,major,frader grader
+					from stu
+					<!-- where标签标示在from后面加where条件
+					如果条件前加了and并且是第一个拼接到where后的，自动删除and字段 -->
+					<where>
+						<if test="id!=null">
+							id=#{id}
+						</if>
+						<if test="name!=null">
+							and name=#{name}
+						</if>
+					</where>
+				</select>
+				
+				
+				<select id="findStudent_foreach" resultType="stu" parameterType="map">
+					select id,name,gender,major,frader grader
+					from stu
+					<!-- [where] id=3 [or] id=5 [or]   suffixOverrides去掉最后的or
+					 -->
+					 <trim prefix="where" suffixOverrides="or">
+						 <if test="lists!=null">
+						 	<foreach collection="lists" item="id">
+						 		id=#{id} or
+						 	</foreach>
+						 </if>
+					</trim>
+				</select>
+				
+				<select id="findStudent_foreach1" resultType="stu" parameterType="map">
+					select id,name,gender,major,frader grader
+					from stu
+					<!-- id in （4,5,6）
+					 -->
+						 <if test="lists!=null">
+						 	where id in
+						 	<foreach collection="lists" item="id" open="(" close=")" separator=",">
+						 		#{id}
+						 	</foreach>
+						 </if>
+				</select>
+				
+				<select id="findStudent_trim" resultType="stu" parameterType="map">
+					select id,name,gender,major,frader grader
+					from stu
+					<!-- prefix给整个条件拼接的结构加前缀  suffix最后面加条件
+					prefixOverrides表示去掉条件前免得多余and或or suffixOverrides表示去掉最后面的条件
+					 -->
+					<trim prefix="where" suffixOverrides="and">
+						<if test="id!=null">
+							id=#{id} and
+						</if>
+						<if test="name!=null">
+							name=#{name} and
+						</if>
+					</trim>
+				</select>
+				
+				<update id="updateStu">
+					update stu
+					<set>
+						<if test="name!=null">name=#{name}</if>
+					</set>
+					<if test="id!=null">
+						where id=#{id}
+					</if>
+				</update>
+				
+			</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.briup.dao.CustomerMapper" >
+				<!-- 不能同时写注解又写映射文件 -->
+				<!-- <insert id="insertCustomer" parameterType="Customer">
+					insert into s_cus values(#{id},#{username},#{age})
+				</insert> -->
+				
+				
+				<!-- 将模版，列和java类的对应关系  type指向java类 id表示模版的名字或标记-->
+				<!-- 指定结果集 -->
+				<resultMap type="Customer" id="cusModel">
+					<!-- id表示主键对应的关系 -->
+			 		<id property="id" column="id"/>
+			 		<!-- 基本属性都是result表示 -->
+			 		<result property="username" column="name"/>
+			 		<result property="age" column="age"/>
+				</resultMap>
+				
+				<insert id="saveCustomer_auto" parameterType="customer">
+		 		<!-- 
+		 		selectKey专门处理主键的，在执行方法的时候参数对象
+		 		没有设置主键的时候用
+		 		keyProperty 查询出的数据对对象中的那个属性起作用
+		 		resultType 表示执行selectKey中的sql语句的返回值
+		 		和传入的对象将来做主键的属性类型一致
+		 		order 选项Before或after
+		 			区别：before是在执行sql语句之前先把传入的对象补充
+		 			完成（主键）
+		 			after执行sql语句之后在把对象补充完整
+		 			注意：两者mysql都支持
+		 		 -->
+			 		<selectKey keyProperty="id"  resultType="int" order="AFTER">
+			 			select max(id)+1 from s_cus
+			 		</selectKey>
+			 		insert into s_cus(id,name,age) values(#{id},#{username},#{old})
+		 		</insert>
+				
+				
+				<select id="findAllCustomers_list" resultMap="cusModel">
+			 		select * from s_cus
+			 	</select>
+			 	
+			 	<select id="findAllCustomers_set" resultMap="cusModel">
+			 		select * from s_cus
+			 	</select>
+			 	
+			 	<select id="findAllCustomers_sortedtset" resultMap="cusModel">
+			 		select * from s_cus
+			 	</select>
+			 	
+			 	<select id="findAllCustomers_map_list" resultType="map" >
+ 					select * from s_cus
+ 				</select>
+			 	
+			 	<!-- 注意事项，返回要封装成map的时候 resultType必须指定为map -->
+			 	<select id="findAllCustomers_map" resultType="map" parameterType="int">
+			 		select * from s_cuswhere id=#{id}
+			 	</select>
+				
+				
+				<!-- 传入多个参数的时候#{} 可以直接用数字代替参数的位置（从0开始）或param+数子表示 （数字从1开始）-->
+				<!-- 传入多个参数时不用指定paramType -->
+			 	<select id="findCustomerByIdNameAge" resultMap="cusModel" > 
+			 		select * from s_cus where id=#{param1} and name=#{param2} and age=#{param3}
+			 	</select>
+				
+				
+				<select id="findCustomerByName" resultMap="cusModel">
+					select *from s_cus
+				</select>
+				
+			</mapper>

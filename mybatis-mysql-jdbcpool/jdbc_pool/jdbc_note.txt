@@ -1,0 +1,618 @@
+https://mvnrepository.com
+
+JDBC驱动：
+   JDBC驱动程序：Sun公司所制定的JDBC接口实现类的集合，由数据库
+厂商提供，不同数据库其JDBC驱动程序是不同的；
+Jdbc连接数据库的步奏
+1.注册驱动
+2.获取链接
+3.创建statement，preparedStatement（执行DML,DDL,存储过程等）
+4.执行sql语句
+5.有无结果集返回，有的话处理结果集
+6.关闭connection链接对象
+
+注意：远程链接数据库（虚拟机中的mysql或别的同学的）
+1.在数据中找到配置文件
+/etc/mysql/mysql.cnf.d/mysqld.cnf
+在文件中用#注解bind-address
+2.进入数据执行
+update mysql.user set host='%' where user='root';
+命令把root允许访问的IP放开，用%通配所有的IP
+3.重启数据库（flush privileges）
+
+execute() 返回boolean ，true表示有结果集
+
+executeQuery()，直接返回结果集,insert, delete,update不支持
+
+executeUpdate() 返回的是int 影响的行计数,select查询不支持
+
+Statement执行，执行sql语句的特点：每次执行
+	都要编译sql语句
+	异构的sql语句，表可能不一样，数据个数可能也不一样
+	insert into stu(id) values(33);
+	insert into stu values(44,’test’);
+	insert into tea  values(55,’wangle’)
+
+	PreparedStatement执行sql特点，执行同构sql语句的
+	时候，可以采用占位和预编译，可以批处理，
+	同构的sql语句插入的表明一样，值个数位置一样
+	只有数据的值不一样
+	insert into stu values(44,’test’);
+	insert into stu values(43,’test’);
+	insert into stu values(46,’test’);
+1 注册驱动 
+	DriverManager.registerDriver
+				(new com.mysql.jdbc.Driver());
+	System.setProperty("jdbc.drivers", "com.mysql.jdbc.Driver");
+	Class.forName("com.mysql.jdbc.Driver");
+
+	Driver driver = new com.mysql.jdbc.Driver();
+
+	-Djdbc.drivers=com.mysql.jdbc.Driver
+2 获得连接对象
+
+	url格式  jdbc:子协议:子名称://ip:端口/数据库?属性名1=属性值1&属性名2=属性值2.....
+	    String url = "jdbc:mysql://localhost:3306/javademo?"
+                + "user=root&password=root&useUnicode=true&characterEncoding=UTF8";
+	Connection conn = DriverManager.getConnection
+				(url, user, password);
+
+3 获得statement 对象
+
+	         | Statement           | PreparedStatement         |  CallableStatement
+    ------------------------------------------------------------------------------
+    写代码位置   |   客户端            | 客户端                    |  服务器端
+    ------------------------------------------------------------------------------
+    存储代码位置   |   客户端            | 服务器端                  |  服务器端
+    ------------------------------------------------------------------------------
+    编写代码技术 |Java，SQL操作        |Java，SQL操作              |  数据库的程序语言，如PL/SQL
+    ------------------------------------------------------------------------------
+    可配置性     |   高                |第一次低，以后高           |  低
+    ------------------------------------------------------------------------------
+    传输效率     |   低                |第一次低，以后高           |  高
+
+  
+    String sql = "select last_name,salary,dept_id from s_emp";
+    String sql = "insert into s_emp() values()"
+    String sql = "update s_emp set salary = 0 where id = 26";
+    String sql = "delete from s_emp where id = 27"
+  //实现和数据库交互，传输SQL语句到数据库并执行SQL
+
+   ResultSet rs = stmt.executeQuery(sql);
+
+   int i = stmt.executeUpdate(sql);
+
+   boolean flag = stmt.execute(sql);
+
+
+
+   /实现和数据库交互，传输参数值到数据库并执行SQL
+
+   String sql = "select last_name,salary,dept_id from s_emp where id = ? and last_name=?"
+
+   pstmt.setInt(1,26);
+
+   pstmt.setString(2,"Winnie");
+
+   ResultSet rs = pstmt.executeQuery();
+
+   int i = pstmt.executeUpdate();
+
+   boolean flag = pstmt.execute();
+
+
+   CallableStatement:
+	1) 通过CallableStatement调用数据库中的存储过程;
+    2) 继承自PreparedStatement;
+    3) CallableStatement cstm = conn.prepareCall("{call pr4(?,?)}");
+       cstm.setInt(1,100);
+       cstm.registerOutParameter(2, Types.INTEGER);
+       cstm.execute();
+       int sum = cstm.getInt(2);
+	   System.out.println(sum);
+
+create procedure pr4(n int,out sum int)
+begin 
+declare i int;
+declare s int;
+set i = 1;
+set s = 0;
+while i<=n do
+set s = s + i;
+set i = i + 1;
+end while;
+select s into sum;
+end#
+
+注意：在命令行中输入参数，调用的时候（执行Call pr4（100，@ab））
+最后select @ab
+
+5. 处理结果集
+1) 使用结果集(ResultSet)对象的访问方法获取数据;
+       a. next():下一个记录
+       b. first():第一个记录
+       c. last():最后一个记录
+       d. previous():上一个记录
+    2) 通过字段名或索引取得数据
+    3) 结果集保持了一个指向了当前行的指针，初始化位置为第一个记录前。
+6. 关闭对象、释放资源，一般推荐先构建的后释放
+   一般在finally里定义；
+    1) 首先关闭记录集;
+    2) 其次关闭声明;
+    3) 最后关闭连接对象。
+
+7 statement sql 注入问题
+	String sql = "select last_name,salary,dept_id from s_emp where last_name='"+name+"'";
+	使用statement执行这样的查询语句是有缺陷的，当name变量值为特殊值时是有可能把所有的值都查出来
+	比如 name = "'or 1 or'" 
+
+	在拼接sql 的过程中，如果变量值取特殊值是有可能改变原有sql语句的含义 这种行为叫做sql注入
+
+
+
+8 jdbc 操作日期类型 	
+	String sql = "select last_name,salary,dept_id from s_emp 
+	where start_date=? ";
+
+	prepareStatement.setDate();
+	这里的时间类型是   java.sql.Date
+	我们通常使用的是   java.util.Date
+
+	a,SimpleDateFormat 类可以帮助我们把String 转化成java.util.Date
+	b,java.util.Date 可以通过时间戳，转化成java.sql.Date
+
+                   Java数据类型              说明
+    ------------------------------------------------------------------
+    INTEGER或者INT                  	int                     通常是个32位整数
+    SMALLINT                        short                   通常是个16位整数
+    NUMBER(m,n) DECIMAL(m,n)        Java.sql.Numeric        合计位数是m的定点十进制数，小数后面有n位数
+    DEC(m,n)                        Java.sql.Numeric        合计位数是m的定点十进制数，小数后面有n位数
+    FLOAT(n)                        double                  运算精度为n位二进制数的浮点数
+    REAL                            float                   通常是32位浮点数
+    DOUBLE                          double                  通常是64位浮点数
+    CHARACTER(n)或CHAR(n)           String                  长度为n的固定长度字符串
+    VARCHAR(n)                      String                  最大长度为n的可变长度字符串
+    BOOLEAN                         boolean                 布尔值
+    DATE                            Java.sql.Date           根据具体设备而实现的日历日期
+    TIME                            Java.sql.Time           根据具体设备而实现的时戳
+    TIMESTAMP                       Java.sql.Timestamp      根据具体设备而实现的当日日期和时间
+    BLOB                            Java.sql.Blob           二进制大型对象
+    TEXT                            Java.sql.Clob           字符大型对象
+    ARRAY                           Java.sql.Array
+
+
+
+
+9 jdbc处理大段文本数据Clob(mysql中叫做Text)
+
+create table clob_test(
+id int,
+big_text text
+)
+
+String sql = "insert into clob_test(big_text) values(?)";
+pstat = conn.prepareStatement(sql);
+
+
+数据的存入
+ a, 如果数据只有ascii,即不能有中文字符特殊字符
+		pstat.setAsciiStream(1, x);
+ b, 如果数据含有中文，用字符流stat.setCharacterStream(1, x);
+ 		File file = new File("src/note");
+		FileReader fr = new FileReader(file);
+		stat.setCharacterStream(1, fr,file.length());
+数据的读取
+	res = stat.executeQuery();
+	while (res.next()) {
+		File file = new File("note_bak.txt");
+		FileWriter fw = new FileWriter(file);
+		Clob clob = res.getClob(2);
+		Reader reader = clob.getCharacterStream();
+		char[] cs = new char[1024];
+		int length = 0;
+		while((length = reader.read(cs))!=-1){
+			fw.write(cs, 0, length);
+			fw.flush();
+		}
+		fw.close();
+		reader.close();
+	}
+	可以直接拿出字符流，不一定先拿clob
+	*res.getCharacterStream(2)
+
+java.lang.String 和clob比较类似，限制范围都比较大
+利用String 也可以在java代码中存入和读取clob类型数据
+pstat.setString();
+
+Clob clob = res.getClob(2);
+clob.getString();
+
+
+
+10 jdbc处理二进制数据blob(mysql中叫做blob)
+
+create table blob_test(
+id int,
+bin_file longblob
+)
+
+数据的存储
+String sql = "insert into blob_test(id,bin_file) values(?,?)";
+
+stat = conn.prepareStatement(sql);
+stat.setInt(1, 1);
+File f = new File("src/存储引擎比较.png");
+BufferedInputStream bis = new BufferedInputStream
+		(new FileInputStream(f));
+stat.setBlob(2, bis);
+stat.executeUpdate();
+
+数据的读取
+InputStream in = res.getBinaryStream(2);
+File file = new File("1.png");
+FileOutputStream fos = new FileOutputStream(file);
+byte[] b = new byte[1024];
+int length = 0;
+while ((length = in.read(b))!=-1) {
+	fos.write(b, 0, length);
+	fos.flush();
+}
+fos.close();
+in.close();
+
+11 事务概念与jdbc事务
+   
+    connection.setAutoCommit(false)
+
+    String sql1="update account set balance = balance-"+amount+" where id = 2";
+	stat.executeUpdate(sql1);
+	Savepoint sp1 = conn.setSavepoint("sp1");
+	String sql2="update account set balance =  balance+"+amount+" where id = 1";
+	stat.executeUpdate(sql2);
+	String sql = "select balance from account where id = 2";
+	ResultSet query = stat.executeQuery(sql);
+	query.next();
+	float ban = query.getFloat(1);
+	if(ban<amount){
+		conn.rollback(sp1);
+		conn.commit();
+		throw new RuntimeException("余额小于转账金额");
+	}
+	conn.commit();
+
+	commit()
+	rollback()
+	结束事务
+	rollback(sp)/rollback to
+	不会结束事务
+
+
+12 JTA分布式事务 
+    依赖于高级服务器容器，tomcat等都不支持，weblogic等大型高级服务器容器才支持
+    javax.transaction.UserTransaction tx = 
+    ctx.lookup("jndiName");
+    tx.begin();
+    //connection1,connection2(可能来自不同的数据库)
+    tx.commit();
+    //tx.rollback();
+
+13 事务的隔离级别
+	conn.setTransactionIsolation(conn.静态变量);
+
+14 auto_increment 生成主键值的返回
+create table person(
+id int primary key auto_increment,
+name varchar(20),
+gender int
+)charset=utf8;
+insert into person(name,gender) values('zs',1);
+ 
+	select * from person; 
+
+
+   PreparedStatement prep = conn.prepareStatement
+				(sql,Statement.RETURN_GENERATED_KEYS);
+   prep.excuteUpdate();
+   ResultSet rs = prep.getGeneratedKeys();
+ 
+15 结果集的滚动与更新
+	
+	re.next() 从前往后查
+	re.privious() 从后往前查
+	
+	res.absolute(int) 直接定位到某一行
+
+16 可更新的结果集
+	conn.createStatement
+	(ResultSet.TYPE_SCROLL_SENSITIVE,
+	 ResultSet.CONCUR_READ_ONLY)
+两个类型
+ResultSet.CONCUR_READ_ONLY
+对查询出的结果集修改会同步修改到数据库中
+不能和ResultSet.TYPE_SCROLL_SENSITIVE一块使用
+ResultSet.CONCUR_UPDATABLE
+下面是3个对象
+
+ResultSet.TYPE_FORWARD_ONLY默认的，表示从上向下读数据
+
+ResultSet.TYPE_SCROLL_INSENSITIVE
+
+返回的结果集对数据库中的的数据变动是不敏感的。可以这么认为，当拿到结果集时，
+已经把数据库库中满足条件的所有记录都取了出来，放在缓存中，如果此时有另一个
+线程将数据库中的数据更改了，也不会影响这个结果集中的数据，因为它用的是缓存中的。
+
+ResultSet.TYPE_SCROLL_SENSITIVE
+
+与此对应，它返回的结果集是敏感的，那么是不是意味着拿到结果集后，数据库中的数
+据变化都会反映到结果集中呢？不是这样的，这里此时拿到的结果集只是某种条件的记
+录的id，当打印结果集中数据的时候，根据id再临时到数据库中取，那么对于拿到结
+果集后，数据库中的数据被更新了（update），肯定是会被反映到结果集上的，但是
+对于插入（insert）操作，由于新插入的记录的id并没有被结果集缓存，所以不会反
+映到结果集中，对于删除操作（delete），因为数据库中的删除操作只是对被删除的
+记录做一个标记，使之不被被检索到，实际的数据并没有被删除，而实际缓存的  是id
+的实际偏移，所以删除操作也不会被反映到结果集上。
+
+jdbc规范在不同数据库中的实现不同，在mysql中感知不到 数据库中的变化
+	while (res.next()) {
+		System.out.println(
+			res.getObject(1)+" "+
+			res.getObject(2)+" "+
+			res.getObject(3)
+		);
+		Thread.sleep(1000);
+	}
+
+
+
+	 ResultSet.CONCUR_READ_ONLY   结果集不允许更新
+	 ResultSet.CONCUR_UPDATABLE   结果集可以更新
+
+	 在遍历结果集的过程中，更新数据，会同步到数据库（表要有主键）
+	 while (res.next()) {
+			System.out.println(
+				res.getObject(1)+" "+
+				res.getObject(2)+" "+
+				res.getObject(3)
+			);
+			String str = (String)res.getObject(2);
+			if(str.equals("briup1")){
+				res.updateFloat(3, 9999.0f);
+				res.updateRow();
+			}
+		}
+
+17 数据库的元数据查看
+	描述 描述数据的 数据 
+表结构 --》 sql  
+ e----> 具体 数据
+
+	DatabaseMetaData data = conn.getMetaData();
+	查看当前连接中 有关mysql的系统信息，比如版本号，是否支持事务，数据库名字
+
+	ResultSetMetaData data = prep.getMetaData();
+	有关参数的元数据
+
+			conn = JdbcUtils.getConnection();
+			ps = conn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int count = rsmd.getColumnCount();
+			String[] colNames = new String[count];
+			for (int i = 1; i <= count; i++) {
+				// System.out.print(rsmd.getColumnClassName(i) + "\t");
+				// System.out.print(rsmd.getColumnName(i) + "\t");
+				// System.out.println(rsmd.getColumnLabel(i));
+				colNames[i - 1] = rsmd.getColumnLabel(i);
+			}
+			List<Map<String, Object>> datas = new ArrayList<Map<String, Object>>();
+
+			while (rs.next()) {
+				Map<String, Object> data = new HashMap<String, Object>();
+				for (int i = 0; i < colNames.length; i++) {
+					data.put(colNames[i], rs.getObject(colNames[i]));
+				}
+				datas.add(data);
+			}
+			return datas;
+
+	有关结果集的元数据
+	
+	
+	将结果集中的数据，封装到list<map<String,Object>>
+
+
+--------------------------------------------------
+
+
+
+
+
+
+
+17 基本的数据库连接池的使用
+	为什么要有连接池
+		每次连接如果都是新创建出来的，一次连接用完了就释放掉，其实对网络资源比较浪费，
+	因为链接的创建是很占用资源的，如果建立过多的连接会导致内存溢出，此外如果程序异常关闭，
+	从而导致链接不能正常关闭，那么也会有内存泄漏此外，我们希望对已经获取到的链接进行重用，进行限制
+	数据库连接池负责分配，管理和释放数据库链接，它允许应用程序重复使用一个现有的数据库连接，而不是每次新建
+
+	jdbc的数据库连接池使用javax.sql.DataSource来表示，DataSource只是一个接口，
+	该接口通常由服务器提供实现，也有一些开源组织提供实现
+
+	DBCP数据库连接池 apache 
+	C3P0数据库连接池 OpenSource
+
+	commons-
+
+
+	DataSource通常被称为数据源，它包含连接池和连接池管理两个部分，习惯上也经常把DataSource成为连接池
+
+18 DBCP数据源
+	dbcp是由apache 提供的数据源实现
+
+	1 导入jar commons-dbcp commons-pool commons-logging
+	2 创建DBCP数据源实例
+		BasicDataSource bds = new BasicDataSource();
+	3 数据源指定必须的属性
+		bds.setUsername();
+		........
+	4 从数据源中获取数据库连接
+		bds.getConnection();
+	或者
+	Properties pro = new Properties();
+	pro.load(new FileInputStream("src/dbcpconfig.properties"));
+	BasicDataSource bds = BasicDataSourceFactory.createDataSource(pro);
+	Connection conn = bds.getConnection();
+
+
+19 c3p0数据源
+
+	1 创建c3p0-config.xml配置文件 放在类的路径下
+	<c3p0-config>  
+        <named-config name="mysql"> 
+        	<!-- 指定基本属性-->
+        	<property name="driverClass">com.mysql.jdbc.Driver</property>  
+            <property name="jdbcUrl">jdbc:mysql://localhost:3306/day16</property>  
+            <property name="user">root</property>  
+            <property name="password">root</property>   
+            <!--连接池在无空闲连接可用时一次性创建的新数据库连接数,default : 3-->
+            <property name="acquireIncrement">5</property> 
+            <!-- 初始化连接数量 ,default : 3--> 
+            <property name="initialPoolSize">5</property>  
+            <!-- 连接池中最小的连接数 ,default : 3-->
+            <property name="minPoolSize">5</property>  
+             <!-- 连接池中最大的连接数 default : 15-->
+            <property name="maxPoolSize">5</property>
+            <!-- 连接池所维护的statement的个数-->
+            <property name="maxStatements">25</property>  
+            <!-- 每个连接同时可以使用的statement的个数-->
+            <property name="maxStatementsPerConnection">5</property>  
+        </named-config>  
+    </c3p0-config>  
+    2 ComboPooledDataSource ds = new ComboPooledDataSource("mysql"）
+	参数为配置文件中 某个配置的名字
+
+	3 ds.getConnection();
+
+
+
+	自定义数据源
+	private static int initCount = 10;
+	private static int maxCount = 20;
+	//当前池中的连接数
+	private static int nowCount = 0;
+	private LinkedList<Connection> pool = new LinkedList<Connection>();
+	public ConnectionPool() {
+		for (int i = 0; i < initCount; i++) {
+			pool.addLast(createConn());
+			this.nowCount++;
+		}
+	}
+	public Connection getConnection() throws SQLException {
+		synchronized (pool) {
+			if (pool.size() > 0) {
+				return this.pool.removeFirst();
+			}
+			if (nowCount < maxCount) {
+				nowCount++;
+				return createConn();
+			}
+			System.out.println("剩余连接:"+pool.size());
+			//如果拿不到连接对象 抛异常 或者等待
+
+			throw new SQLException("没有闲置链接");
+		}
+	}
+	public void free(Connection conn) {
+		pool.addLast(conn);
+	}
+	private Connection createConn() {
+		String url = "jdbc:mysql://localhost:3306/briup?" + "characterEncoding=UTF8";
+		String user = "root";
+		String password = "root";
+		Connection conn = null;
+		try {
+			conn = DriverManager.getConnection(url, user, password);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return conn;
+	}
+
+20 使用apache DBUtils简介
+
+	commons-dbutils 是apache组织提供一个开源的	JDBC工具类库，它是对jdbc的简单封装，学习成本极低，
+	并且使用dbutils能极大简化jdbc编码的工作量，同时也不会影响程序的性能
+
+	1 执行update
+		可以用于insert update delete 
+	QueryRunner qr = new QueryRunner();
+	String sql = "delete from account where id in (?,?)";
+	Connection conn = JDBCUtils.getConn();
+	qr.update(conn, sql, 7,8);
+	
+	JDBCUtils.close(null, null, conn);
+	2 执行query
+	conn = JDBCUtils.getConn();
+	String sql = "select id,name,balance from account where id < ?";
+	Object obj = qr.query(conn, sql, new ResultSetHandler<Object>() {
+		@Override
+		public Object handle(ResultSet rs) throws SQLException {
+			while(rs.next()){
+				System.out.println(
+					rs.getObject(1)+" "+
+					rs.getObject(2)+" "+
+					rs.getObject(3)
+				);
+			}
+			return null;
+		}
+	}, 10);
+
+	3 handler的分类
+	ResultSetHandler
+	指定对结果集的操作方式，较为灵活
+	
+	Beanhandler 把结果集查询到的第一条记录，转化成创建Beanhandler对象是所传入的class参数对应的对象
+
+	BeanListhandler
+	把结果集转化成一个list，该list不是null，但是可能为空 size=0，若干sql语句能查询到对象
+	那么list中存放 创建BeanListhandler时所传入的class参数对应的对象
+
+	MapHandler
+	返回sql对应的第一条记录对应的map对象，key = sql查询的列名不是别名
+	value = 列的值
+
+	MapListHandler
+	返回结果集对应的每一行map对象所组成的list，key = sql查询的列名不是别名
+	value = 列的值
+
+	ScalarHandler
+	返回结果集第一行第一列的值
+
+	4 QueryLoader
+	可以用来加载保存着sql语句的资源文件，使用该类可以把sql语句外置化到文件中，以更好地解耦
+	//路径从src下开始  / = src
+	Map<String, String> sqls = QueryLoader.instance().load("/sql.properties");
+	String sql = sqls.get("select_account");
+	System.out.println(sql);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

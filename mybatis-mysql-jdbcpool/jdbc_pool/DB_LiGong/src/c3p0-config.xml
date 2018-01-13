@@ -1,0 +1,19 @@
+<c3p0-config>
+	<!-- <default-config>
+	
+	
+	</default-config> -->
+	<named-config name="hello">
+		<property name="driverClass">com.mysql.jdbc.Driver</property>
+		<property name="jdbcUrl">jdbc:mysql://localhost:3306/briup</property>
+		<property name="user">root</property>
+		<property name="password"></property>
+		<!-- 新增连接每次创建的个数 -->
+		<property name="acquireIncrement">5</property>
+		<property name="initialPoolSize">5</property>
+		<property name="minPoolSize">5</property>
+		<property name="maxPoolSize">5</property>
+		<property name="maxStatements">5</property>
+		<property name="maxStatementsPerConnection">5</property>
+	</named-config>
+</c3p0-config>  

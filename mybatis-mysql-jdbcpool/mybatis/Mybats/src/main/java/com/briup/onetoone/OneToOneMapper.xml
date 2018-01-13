@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.briup.onetoone.OneToOneMapper">
+				<insert id="saveWife" parameterType="Wife" useGeneratedKeys="true" keyProperty="id">
+					insert into wife(name,age) values(#{name},#{age})
+				</insert>
+				
+				<insert id="saveHus" parameterType="Hus">
+					<!-- hus.getWife.getId -->
+					insert into hus values(null,#{name},#{age},#{wife.id})
+				</insert>
+				
+				<!-- 配置一对一的关系 -->
+				<resultMap type="Hus" id="husModel">
+					<id property="id" column="id"/>
+					<result property="name" column="name"/>
+					<result property="age" column="age"/>
+					<!-- 封装wife对象的对应关系 -->
+					<result property="wife.id" column="ids"/>
+					<result property="wife.name" column="names"/>
+					<result property="wife.age" column="ages"/>
+				</resultMap>
+				
+				<select id="findHus" resultMap="husModel">
+					<!-- 查询出来的表的列名不能重复 -->
+					select h.id,h.name,h.age,w.id ids,w.name names,w.age ages from hus h,wife w where h.wife_id=w.id
+				</select>
+				
+				<!-- 第二种配置一对一的关系 -->
+				<resultMap type="wife" id="wifeM">
+					<id property="id" column="ids"/>
+					<result property="name" column="names"/>
+					<result property="age" column="ages"/>
+				</resultMap>
+				<resultMap type="Hus" id="husM">
+					<id property="id" column="id"/>
+					<result property="name" column="name"/>
+					<result property="age" column="age"/>
+					<!-- 关联一对一封装对象 -->
+					<!-- property指明wife在hus中的属性名，resultMap指明这个变量基于哪个模板封装 -->
+					<association property="wife" resultMap="wifeM"></association>
+				</resultMap>
+				
+				<select id="findHusById" resultMap="husM" parameterType="int">
+					select h.id,h.name,h.age,w.id ids,w.name names,w.age ages from hus h,wife w where h.wife_id=w.id and h.id=#{id}
+				</select>
+				
+				<!-- 第三种配置一对一的关系 -->
+				<resultMap type="wife" id="wifeM1">
+					<id property="id" column="id"/>
+					<result property="name" column="name"/>
+					<result property="age" column="age"/>
+					<!-- javaType指明hus对象所怎么封装成指定对象  需要用子标签来设置 -->
+					<association property="hus" javaType="hus">
+						<id property="id" column="ids"/>
+						<result property="name" column="names"/>
+						<result property="age" column="ages"/>
+					</association>
+				</resultMap>
+				
+				<select id="findWifeById" resultMap="wifeM1" parameterType="int">
+					select w.id,w.name,w.age,h.id ids,h.name names,h.age ages from hus h,wife w where h.wife_id=w.id and w.id=#{id}
+				</select>
+				
+			</mapper>
